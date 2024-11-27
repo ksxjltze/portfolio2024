@@ -12,9 +12,7 @@ export default function Page() {
       <p>I have used various technologies and programming languages across a variety of different projects, work, school and personal. I enjoy experimenting with tech, and I have a strong passion for software development.</p>
       <br></br>
       <p>
-        <i>
-          Jack of all trades, master of none, but oftentimes, better than master of one.
-        </i>
+        I've also dabbled in 3D modeling with Blender, and aspire to create characters and worlds that inspire others.
       </p>
       <div className="my-8">
         <BlogPosts />
