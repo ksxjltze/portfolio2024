@@ -1,7 +1,7 @@
 ---
 title: 'WebGPU on a Discord activity'
 publishedAt: '2024-11-27'
-summary: 'Chromium'
+summary: 'A very convoluted project'
 ---
 
 # Introduction
@@ -57,10 +57,15 @@ Personally, I'm trying WebGPU just to see what I can do with this cool new techn
 ## Why WebGPU works in Discord
 Discord is built with the Electron framework, which uses Node.js and Chromium. Chromium is an open-source browser project that powers browsers like Google Chrome, Opera GX, Brave, etc.
 Electron closely follows the Chromium release schedule, releasing a major version with every other Chromium version released. This means that Electron has all the cutting edge browser features, including WebGPU.
+
 Assuming that Discord uses recent versions of Electron, this means that Discord is practically a modern browser, with support for modern browser features like WebGPU.
 
-# Cloudflare Workers
-TODOO
+## Cloudflare Workers
+Participating in a discord activity requires clients to interface with the discord API for authentication and stuff.
+
+Cloudflare workers are a great way to forward such requests through a lightweight serverless function.
+This effectively serves as a convenient backend, saving us the need to host a server somewhere just to make some API calls.
+Heavily inspired by the Discord embedded app sdk examples [here](https://github.com/discord/embedded-app-sdk-examples).
 
 # Rust, C++, WASM
 TOODO
@@ -80,8 +85,12 @@ Considering that WebGPU is targeted towards web developers, it should come as no
 However, if we want to take advantage of the speed and libraries that C++ and Rust have to offer, we'll have to do some extra work.
 
 ## Rust
-Rust was painful, mainly because I decided to try and write my own implementation with a little reference to [tutorials](https://sotrh.github.io/learn-wgpu/), with little Rust experience, especially when dealing with explicit lifetimes and async programming.
+Rust was painful, mainly because I decided to try and write my own implementation with a little reference to [tutorials](https://sotrh.github.io/learn-wgpu/) with little Rust experience. It was especially a struggle when learning to deal with explicit lifetimes and async programming.
+
+Specifically, I was struggling to implement a wgpu::Surface using newer versions of winit, unfortunately, I couldn't figure out a way to properly reference it for the resize event without running into lifetime issues, particularly when trying to assign it to self during initialization.
+
 In the end, I gave up and just copied the boilerplate from the tutorials. It wasn't much too different from the typescript implementation, however, it was a lot more verbose, needing more lines to achieve the same result.
+Maybe I'll try again in the future when I'm wiser and stronger, for now, I just want to get this project working as soon as I can.
 
 ## Cee Plus Plus
 DO
