@@ -4,6 +4,8 @@ publishedAt: '2024-11-27'
 summary: 'Chromium'
 ---
 
+# Introduction
+
 Did you know you could run a WebGPU game in a Discord activity? Well me neither, not until recently, when curiosity got the better of me and I just had to give it a try.
 
 Resources:
@@ -11,5 +13,75 @@ Resources:
 - [Your first WebGPU app](https://codelabs.developers.google.com/your-first-webgpu-app)
 - [Cloudflared reverse proxy](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/get-started/create-local-tunnel/)
 - [Cloudflare Workers](https://developers.cloudflare.com/workers/get-started/dashboard/)
+- [About WebGPU](https://cohost.org/mcc/post/1406157-i-want-to-talk-about-webgpu)
+- [WebGPU Docs](https://www.w3.org/TR/webgpu/)
+- [CXX](https://cxx.rs/tutorial.html)
+- [WebGPU Rust Tutorial](https://sotrh.github.io/learn-wgpu/)
+- [A proper look at WebGPU for native games](https://www.youtube.com/watch?v=DdMl4E7xQEY)
+- [Cheerp](https://cheerp.io/docs/getting-started/tour)
+
+Before I started this project, I had a really hard time deciding whether to use TypeScript, C++ or Rust for the game engine side of things. So I decided, why not try all of them?
+I've decided to implement a simple WebGPU backend in C++, Rust and TypeScript, just to see how each one feels.
 
 Check out the source code (WIP) [here](https://github.com/ksxjltze/discord-webgpu-activity).
+
+# What is WebGPU?
+WebGPU is a JavaScript graphics rendering API that allows websites to efficiently use the graphics processing unit for rendering and computation.
+Essentially, it is a layer that sits on top of lower-level system APIs like Vulkan, Metal and Direct3D.
+
+While still an experimental technology, WebGPU support is already available in most desktop browsers today. See [here](https://developer.mozilla.org/en-US/docs/Web/API/WebGPU_API#browser_compatibility) for a list of compatible browsers.
+Although WebGPU is a JavaScript API, and hence targeted for web development, it is also available as a native library, with implementations in C++ and Rust.
+
+This makes it suitable for developing native desktop applications as well, such as games or simulations, or any other program that requires utilization of a GPU.
+
+From my personal experience, I'd describe WebGPU as a middleground between Vulkan and OpenGL. 
+It's not nearly as verbose as Vulkan, you don't have to write like a thousand lines of code just to see a triangle, but it provides you far more control over the graphics pipeline than OpenGL does.
+
+I recommend this article for a more in-depth look at the history of WebGPU:
+
+[I want to talk about WebGPU](https://cohost.org/mcc/post/1406157-i-want-to-talk-about-webgpu).
+
+# Discord activities
+A discord activity is a social experience that runs directly in the Discord app, it can range from playing games, to watching videos together.
+The underlying mechanism that powers this are HTML iframes, embedded in the discord application when the activity is started.
+This means that anything that can run on a webpage, should also be able to run in a discord activity.
+
+My goal for this project is to render a 3D model I made inside of a discord activity, and possibly make it react to participants of the activity.
+
+## Why use WebGPU
+WebGPU is not the only option for rendering 3D graphics on the web. There are other frameworks and libraries that are arguably much easier to setup and use, such as ThreeJS or BabylonJS.
+However, one of the strengths of WebGPU is that it allows for cross-platform development. As WebGPU can also be used natively, we can develop our app in C++ or Rust, then integrate it into a webpage using Web Assembly (WASM).
+
+Personally, I'm trying WebGPU just to see what I can do with this cool new technology, to see if I can combine my experience with developing native applications with web development, to create something interesting.
+
+## Why WebGPU works in Discord
+Discord is built with the Electron framework, which uses Node.js and Chromium. Chromium is an open-source browser project that powers browsers like Google Chrome, Opera GX, Brave, etc.
+Electron closely follows the Chromium release schedule, releasing a major version with every other Chromium version released. This means that Electron has all the cutting edge browser features, including WebGPU.
+Assuming that Discord uses recent versions of Electron, this means that Discord is practically a modern browser, with support for modern browser features like WebGPU.
+
+# Cloudflare Workers
+TODOO
+
+# Rust, C++, WASM
+TOODO
+
+## Cheerp, Emscripten
+DOODOO
+
+## CXX
+DOOTOO
+
+# WebGPU in different languages
+
+## Typescript
+I started on this project with the typescript implementation, it was very straightforward, copy-paste some [boilerplate](https://codelabs.developers.google.com/your-first-webgpu-app) and we immediately have a triangle (or square) on the screen in less than 5 minutes.
+Considering that WebGPU is targeted towards web developers, it should come as no surprise that this was the easiest way to do it by far.
+
+However, if we want to take advantage of the speed and libraries that C++ and Rust have to offer, we'll have to do some extra work.
+
+## Rust
+Rust was painful, mainly because I decided to try and write my own implementation with a little reference to [tutorials](https://sotrh.github.io/learn-wgpu/), with little Rust experience, especially when dealing with explicit lifetimes and async programming.
+In the end, I gave up and just copied the boilerplate from the tutorials. It wasn't much too different from the typescript implementation, however, it was a lot more verbose, needing more lines to achieve the same result.
+
+## Cee Plus Plus
+DO
