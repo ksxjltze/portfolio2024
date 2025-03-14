@@ -14,6 +14,10 @@ export default function Page() {
       <p>
         I've also dabbled in 3D modeling with Blender, and aspire to create characters and worlds that inspire others.
       </p>
+      <br></br>
+      <p>
+      Recently, I've been trying to create cool visual effects in Unity, using shaders, particles, procedural generation, post-processing, etc.
+      </p>
       <div className="my-8">
         <BlogPosts />
       </div>
