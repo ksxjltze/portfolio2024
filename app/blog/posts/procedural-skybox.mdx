@@ -1,0 +1,65 @@
+---
+title: 'Learning to make a Simple Procedural Skybox in Unity URP'
+publishedAt: '2025-03-14'
+summary: 'Learning shaders and stuff'
+tags: URP, Unity, HLSL, Shaders
+---
+
+Recently I've been asked to implement a day/night cycle for an upcoming game I've been working on. In practice, this is easily achievable using Unity's built-in procedural skybox shader.
+
+Plenty of resources on YouTube, for example, here's one that shows you how to get one up and running in 6 minutes: [https://www.youtube.com/watch?v=m9hj9PdO328](https://www.youtube.com/watch?v=m9hj9PdO3280)
+
+To sum things up, adjusting the rotation of the directional light, changing the ambient lighting and fog color according to the current time of day is enough to achieve a believable day/night cycle in Unity.
+
+However, what if we wanted to add stars, or clouds?
+
+# Here's what I tried
+1. Create a separate dome mesh, and apply a material to it, making it transparent to allow it to blend with the background skybox.
+2. Attempt to modify the built-in Unity Procedural Skybox shader.
+3. Made my own procedural skybox shader.
+
+## Method 1: Separate Dome Mesh
+
+I followed this amazing tutorial by [Digvijaysinh Gohil](https://www.youtube.com/watch?v=WBM-JDA0vNY) to create a material for stars.
+
+Aside from the stars shader, this video is a great introduction to how to begin using ShaderGraph to create your own shaders in Unity.
+
+It briefly touches on UVs, procedural noise, useful math nodes, colors, gradients, and simple animation techniques to make the stars twinkle.
+
+I made a simple dome mesh in blender, imported it into Unity, and then wasted a day or two struggling to get it to work properly with the camera. 
+TLDR: Far plane clipping, temporal aliasing, camera layer stack, culling masks, etc.
+
+This method is actually perfectly fine, but I wasn't too satisfied with the end result because of how finnicky the setup felt.
+So I decided to explore other options for more fine-grained control over the skybox.
+
+## Method 2: Modifying the built-in shader.
+I don't know how to, so I decided to roll my own in the end.
+
+## Method 3: Time to learn ShaderLab
+
+This time, I decided to go at it from scratch, learning how to write HLSL and ShaderLab.
+
+Here's great resource to get started with shader programming: [Book of Shaders](https://thebookofshaders.com/)
+It introduces a whole bunch of core concepts for drawing things in shaders.
+
+See also this great article by [Jannik Boysen](https://medium.com/@jannik_boysen/procedural-skybox-shader-137f6b0cb77c) on creating a procedural skybox shader in Shader Graph.
+
+### Sky
+I started with a simple Unlit surface surface (URP), and began by filling in the sky color.
+
+Common Pitfalls:
+- Not using Seamless textures
+- Wrong mipmapping settings
+- Not correctly mapping UVs to spherical coordinates
+
+WIP
+
+- Color Math and operations (One-minus, Saturate, Smoothstep, Lerp, Masking)
+- Noise, erosion, scrolling UVs, texture wrapping
+- Post Processing (Bloom, Color Filters, Tonemapping, etc.)
+- Volumetric Clouds (Raymarching)
+
+### Media
+![Day Sky](/images/procedural-skybox/day-sky.png)
+
+![Night Sky](/images/procedural-skybox/night-sky.png)
