@@ -1,9 +1,20 @@
 ---
-title: 'Trying to Recreate the Genshin Weapon Disappearing Effect'
+title: 'Trying to Imitate the Genshin Weapon Disappearing Effect'
 publishedAt: '2025-03-14'
 summary: 'Dissolve shader, noise, particles, VFX Graph'
 tags: URP, Unity, ShaderGraph, Shaders, VFX Graph
 ---
+
+If you've ever played Genshin Impact, you might have noticed how characters "Unequip" their weapons in this cool burst of particles.
+Strike a cool pose, throw your sword into the air and have it turn into dust, beautiful.
+
+## How I started
+Like I'm sure many of my tech bro peers would do, I asked Claude and DeepSeek: "how does genshin do it's disappearing weapon vfx?"
+I got back a pretty detailed and convincing answer, involving Dissolve Shaders, Particle Systems, Trail Renderers, Animation Synchronization, etc.
+
+It even gave me some code to go along with its answer, but to challenge myself, I decided to create the shader from scratch using ShaderGraph.
+
+This little endeavour taught me about the concept of using a noise texture to "erode" the rendered output of a shader.
 
 WIP:
 - Using a noise texture as a mask
@@ -15,3 +26,5 @@ WIP:
 <video className="mt-4" autoPlay preload="auto" playsInline muted loop>
     <source src="/videos/dissolve-vfx/dissolve-vfx.mp4" type="video/mp4" />
 </video>
+
+If you look closely, this effect doesn't do the exact same thing as the Genshin effect, but it does have a similar feel.
