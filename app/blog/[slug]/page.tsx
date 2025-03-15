@@ -51,6 +51,13 @@ export function generateMetadata({ params }) {
   }
 }
 
+function displayLastUpdatedDate(post) {
+  if (post.metadata.updatedAt)
+    return (<span className='ml-2 border-solid border text-indigo-500 border-indigo-500 rounded-md p-1 inline-block'>Last Updated: {formatDate(post.metadata.updatedAt)}</span>)
+  else
+    return '';
+}
+
 export default function Blog({ params }) {
   let post = getBlogPosts().find((post) => post.slug === params.slug)
 
@@ -69,7 +76,7 @@ export default function Blog({ params }) {
             '@type': 'BlogPosting',
             headline: post.metadata.title,
             datePublished: post.metadata.publishedAt,
-            dateModified: post.metadata.publishedAt,
+            dateModified: post.metadata.updatedAt,
             description: post.metadata.summary,
             image: post.metadata.image
               ? `${baseUrl}${post.metadata.image}`
@@ -77,7 +84,7 @@ export default function Blog({ params }) {
             url: `${baseUrl}/blog/${post.slug}`,
             author: {
               '@type': 'Person',
-              name: 'My Portfolio',
+              name: 'Lee Jia Keat',
             },
           }),
         }}
@@ -87,7 +94,8 @@ export default function Blog({ params }) {
       </h1>
       <div className="flex justify-between items-center mt-2 mb-8 text-sm">
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          {formatDate(post.metadata.publishedAt)}
+          {formatDate(post.metadata.publishedAt)} 
+          {displayLastUpdatedDate(post)}
         </p>
       </div>
       <article className="prose">
