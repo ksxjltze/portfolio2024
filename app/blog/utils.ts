@@ -5,7 +5,14 @@ type Metadata = {
   title: string
   publishedAt: string
   summary: string
-  image?: string
+  tags?: string
+  updatedAt?: string
+}
+
+export type BlogPostData = {
+  metadata: Metadata,
+  slug: string,
+  content: string
 }
 
 function parseFrontmatter(fileContent: string) {
@@ -51,6 +58,51 @@ function getMDXData(dir) {
 
 export function getBlogPosts() {
   return getMDXData(path.join(process.cwd(), 'app', 'blog', 'posts'))
+}
+
+export function getBlogPostsSorted() {
+  return getBlogPosts().sort((a, b) => {
+    if (
+      new Date(a.metadata.publishedAt) > new Date(b.metadata.publishedAt)
+    ) {
+      return -1;
+    }
+    return 1;
+  })
+}
+
+export function getBlogPostsByYear() : Map<number, BlogPostData[]> {
+  const posts = new Map<number, BlogPostData[]>();
+
+  getBlogPostsSorted().forEach((post) => {
+    let publishedDate = new Date(post.metadata.publishedAt);
+    const year = publishedDate.getFullYear();
+
+    let yearDict = posts.get(year);
+    if (!yearDict) {
+      posts.set(year, []);
+      yearDict = posts.get(year);
+    }
+    
+    yearDict?.push(post);
+  });
+
+  return posts;
+}
+
+export function formatBlogDate(date: string) {
+  let currentDate = new Date()
+  if (!date.includes('T')) {
+    date = `${date}T00:00:00`
+  }
+  let targetDate = new Date(date)
+
+  let fullDate = targetDate.toLocaleString('en-us', {
+    month: 'short',
+    day: 'numeric'
+  })
+
+  return `${fullDate}`
 }
 
 export function formatDate(date: string, includeRelative = false) {
