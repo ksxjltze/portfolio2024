@@ -1,0 +1,109 @@
+---
+title: 'Why I love the Publisher-Subscriber Pattern'
+publishedAt: '2025-03-15'
+summary: 'Lazy dev does lazy dev things'
+tags: Events, Observer, Subscriber, Publisher, Architecture
+---
+
+Studying computer science usually ends up pushing many programmers through a similar mold (from my experience at least).
+
+We start with a high-level programming language like Java, C# or Python, learn all about object oriented programming, inheritance, design patterns, polymorphism, interfaces, abstract data types, etc.
+
+Eventually, you might end up making all these abstract interfaces, implementing builders, factories, iterators, commands, and all those other fancy Design Patterns to make your code nice, neat and "clean".
+
+While there's nothing wrong with trying to design a codebase around a clean and modular architecture, oftentimes, it can really slow down iteration times, especially when you're just trying to prototype something quick for a demo or concept.
+
+## Experiment
+
+Let's consider a simple scenario: You have a scene in Unity, and you want to open a Door when the player clicks on a Button or Interacts with some specific object in the world.
+
+Seems pretty straightforward to implement doesn't it? Create a script for the door, a script for the button, and then hook them up and add them to the corresponding game objects.
+
+``` C#
+public class Door : MonoBehaviour {
+    void Open() {
+        //play some animation, etc.
+    }
+}
+
+public class DoorButton : MonoBehaviour {
+    public Door door;
+
+    //assume that this is invoked by a ray-cast/UI event
+    void Open() {
+        door.Open();
+    }
+}
+```
+
+But wait, what if you want to have that door be opened by different kinds of interactions or events?
+
+### Imagine: You want the door to open itself at a certain time, to open itself when you approach it, when you press a certain hotkey, or when you enter the correct password on a keypad.
+
+You could easily end up with a big Door class doing all kinds of door things, which has to keep track of all the door-related things and interactions it needs to know about.
+
+Or the other way around, you could end up with lots of small scripts keeping track of a single Door.
+
+All of this code and behaviour coupling can really make things go spaghetti over time, building up technical debt and tremendously slowing down your precious development time.
+
+### What if there was an easy way to just tell an object to do something, without having to connect it to all of these other things that it doesn't need to care about?
+
+#### Introducing: The Publisher-Subscriber pattern.
+
+Now, a quick web search about this might throw all sorts of complicated articles at you, because of the asynchronous nature of cloud and decoupled systems, etc.
+
+But what I want to show here is an extremely simplified version of that pattern, implemented using a global event or message bus, specifically for Unity C# scripting.
+
+WIP: Explain
+- Delegates
+- Subscribers
+- Events
+- Why static and not singleton
+- Editor integration
+
+### Event Bus
+```C#
+public static class EventBus {
+    private static Dictionary<string, HashSet<EventSubscriber>> eventSubscribers = new();
+
+    public static void Subscribe(string eventName, ChronoEventSubscriber subscriber)
+    {
+        if (!eventSubscribers.ContainsKey(eventName))
+            eventSubscribers[eventName] = new();
+
+        eventSubscribers[eventName].Add(subscriber);
+    }
+
+    public static void Publish(string eventName, object data)
+    {
+        if (!eventSubscribers.ContainsKey(eventName))
+            return;
+
+        foreach (var subscriber in eventSubscribers[eventName])
+        {
+            subscriber.OnEvent(eventName, data);
+        }
+    }
+
+}
+```
+
+### Event Subscriber
+```C#
+public class EventSubscriber : MonoBehaviour
+{
+    private Dictionary<string, Action<object>> eventActions = new Dictionary<string, Action<object>>();
+
+    public void Subscribe(string eventName, Action<object> action)
+    {
+        eventActions.Add(eventName, action);
+        EventBus.Subscribe(eventName, this);
+    }
+
+    public void OnEvent(string eventName, object data)
+    {
+        Debug.Log("Event received: " + eventName);
+        eventActions[eventName].Invoke(data);
+    }
+}
+```
