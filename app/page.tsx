@@ -5,9 +5,9 @@ export default function Page() {
     <section>
       <div className="mb-8">
         <p>Hello there, I'm
-          <h1 className="ml-1.5 inline-block text-2xl font-semibold tracking-tighter">
+          <span className="ml-1.5 inline-block text-2xl font-semibold tracking-tighter">
             Lee Jia Keat
-          </h1>, I like to build things, and make cool things.
+          </span>, I like to build things, and make cool things.
         </p>
       </div>
       <p>I enjoy experimenting with technology, and I have a strong passion for software development, game development in particular.</p>
