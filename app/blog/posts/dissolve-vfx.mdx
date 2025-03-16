@@ -117,7 +117,7 @@ public class DissolveEffectController : MonoBehaviour
 }
 ```
 
-## Naive HLSL Implementation
+## Simple HLSL Implementation
 ```
 Shader "Custom/DissolutionShader"
 {
@@ -127,6 +127,10 @@ Shader "Custom/DissolutionShader"
         _NoiseTex ("Noise", 2D) = "white" {}
         _ClipThreshold ("Clip Threshold", Range(0, 1)) = 0
         _DissolveAmount ("Dissolve Amount", Range(0, 1)) = 0
+
+        _Scroll ("Scroll", Vector) = (0, 0, 0, 0)
+        _ErodeGradient ("Erosion Gradient", Range(0, 10)) = 0
+        _Direction ("Direction", Vector) = (0, 1, 0, 0)
     }
     SubShader
     {
@@ -162,6 +166,9 @@ Shader "Custom/DissolutionShader"
             float4 _MainTex_ST;
             float _ClipThreshold;
             float _DissolveAmount;
+            float2 _Scroll;
+            float _ErodeGradient;
+            float4 _Direction;
 
             v2f vert (appdata v)
             {
@@ -176,12 +183,15 @@ Shader "Custom/DissolutionShader"
             {
                 // sample the texture
                 fixed4 col = tex2D(_MainTex, i.uv);
+                float2 uv = i.uv + _Scroll;
 
                 // apply fog
                 UNITY_APPLY_FOG(i.fogCoord, col);
 
-                float dissolveFactor = 1.0 / (1 - _DissolveAmount + 0.001);
-                col.a = 1 - (dissolveFactor * (tex2D(_NoiseTex, i.uv) ));
+                float dissolveFactor = 1.0 / (_DissolveAmount + 0.001);
+                float dissolveAlpha = 1 - (dissolveFactor * (tex2D(_NoiseTex, uv) ));
+
+                col.a =  1 - lerp(0.0, dissolveAlpha, dot(uv, _Direction) / _ErodeGradient);
                 if (col.a <= _ClipThreshold)
                     discard;
 
@@ -194,8 +204,17 @@ Shader "Custom/DissolutionShader"
 ```
 
 The equation "dissolveFactor = 1.0 / (1 - _DissolveAmount + 0.001)" allows the material to be completely "dissolved" at a value of 1.0, and fully opaque at a value of 0.0.
+Adding a UV offset and a vector to control the "direction" of the erosion pattern adds some depth to the shader.
 
-      
+A simple linear interpolation between 0 and the dissolve alpha creates a controllable gradient, adding to the "dissolving" effect.
+
+<video className="mt-4" autoPlay preload="auto" playsInline muted loop>
+    <source src="/videos/dissolve-vfx/dissolve-shader.mp4" type="video/mp4" />
+</video>
+
+
+TODO:
+- Modify controller and VFX graph
 
 ## Future Improvements
 - Support Lit Shader

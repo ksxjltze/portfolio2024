@@ -6,6 +6,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@codesandbox/sandpack-react": "^2.20.0",
     "@tailwindcss/postcss": "4.0.0-alpha.13",
     "@types/node": "20.11.17",
     "@types/react": "18.2.55",
