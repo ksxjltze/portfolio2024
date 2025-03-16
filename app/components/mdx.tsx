@@ -4,6 +4,8 @@ import { MDXRemote } from 'next-mdx-remote/rsc'
 import { highlight } from 'sugar-high'
 import React from 'react'
 
+import { Sandpack } from "@codesandbox/sandpack-react";
+
 const headings = {};
 
 function Table({ data }) {
@@ -55,6 +57,10 @@ function Code({ children, ...props }) {
   return <code dangerouslySetInnerHTML={{ __html: codeHTML }} {...props} />
 }
 
+function Sandbox({children, ...props}) {
+  return <Sandpack></Sandpack>
+}
+
 function slugify(str) {
   return str
     .toString()
@@ -100,6 +106,7 @@ let components = {
   a: CustomLink,
   code: Code,
   Table,
+  Sandbox
 }
 
 export function CustomMDX(props) {
