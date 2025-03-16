@@ -13,7 +13,7 @@ To sum things up, adjusting the rotation of the directional light, changing the 
 
 However, what if we wanted to add stars, or clouds?
 
-# Here's what I tried
+# What I tried
 1. Create a separate dome mesh, and apply a material to it, making it transparent to allow it to blend with the background skybox.
 2. Attempt to modify the built-in Unity Procedural Skybox shader.
 3. Made my own procedural skybox shader.
@@ -44,7 +44,7 @@ It introduces a whole bunch of core concepts for drawing things in shaders.
 
 See also this great article by [Jannik Boysen](https://medium.com/@jannik_boysen/procedural-skybox-shader-137f6b0cb77c) on creating a procedural skybox shader in Shader Graph.
 
-### Sky
+# Sky
 I started with a simple Unlit surface surface (URP), and began by filling in the sky color.
 
 Below is some of the simplest code possible for a primitive procedural skybox.
@@ -122,13 +122,30 @@ Shader "Unlit/ProceduralSkybox"
 ### Result
 ![Primitive Sky](/images/procedural-skybox/primitive-sky.png)
 
-Common Pitfalls:
-- Not using Seamless textures
-- Wrong mipmapping settings
-- Not correctly mapping UVs to spherical coordinates
+# Stars
+WIP
 
-Additional Resources:
+# Clouds
+## Common Pitfalls
+### 1. Not using Seamless textures
+- Problem: My clouds are ugly and don't wrap properly!
+- Solution: Use a seamless texture.
+
+### 2. Wrong mipmapping settings
+- Problem: There's a weird line in the middle of my skybox!
+- Solution: Disable mipmapping.
+
+### 3. Not correctly mapping UVs to spherical coordinates
+- Problem: My clouds are all stretched and weird!
+- Solution: Properly map your UVs.
+
+## Additional Resources
 - [Seamless Procedural Blender Textures](https://www.youtube.com/watch?v=LwMwkUCe3KU)
+- [Mapping Texture UVs for Skybox](https://gamedev.stackexchange.com/questions/189357/mapping-texture-uvs-to-sphere-for-skybox)
+
+### Results
+![Day Sky](/images/procedural-skybox/day-sky.png)
+![Night Sky](/images/procedural-skybox/night-sky.png)
 
 WIP
 
@@ -137,7 +154,4 @@ WIP
 - Post Processing (Bloom, Color Filters, Tonemapping, etc.)
 - Volumetric Clouds (Raymarching)
 
-### Media
-![Day Sky](/images/procedural-skybox/day-sky.png)
-
-![Night Sky](/images/procedural-skybox/night-sky.png)
+# Post Processing

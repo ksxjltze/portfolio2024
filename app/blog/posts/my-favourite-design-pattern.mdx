@@ -52,14 +52,39 @@ All of this code and behaviour coupling can really make things go spaghetti over
 
 Now, a quick web search about this might throw all sorts of complicated articles at you, because of the asynchronous nature of cloud and decoupled systems, etc.
 
-But what I want to show here is an extremely simplified version of that pattern, implemented using a global event or message bus, specifically for Unity C# scripting.
+What I want to show here is an extremely simplified version of that pattern, implemented using a global event or message bus, specifically for Unity C# scripting.
 
-WIP: Explain
-- Delegates
-- Subscribers
-- Events
-- Why static and not singleton
-- Editor integration
+The terminology for patterns like these can get a little fuzzy at times, with terms like Observers, Subscribers, Subjects, Listeners, etc.
+
+To keep things simple, I'll stick to referring to the senders of events as the "Publisher", and the receiver of said events as "Subscribers".
+
+## Core Concepts
+The core implementation of this pattern is a globally accessible class, containing a lookup table for each event that should be broadcasted to subscribers.
+
+An _Event_ here is nothing more than an identifier, and a payload.
+
+```C#
+public struct Event {
+    public string name;
+    public object data;
+}
+```
+
+A _Subscriber_ is able to register itself to a specific event, but does not need to know about the source of said events.
+
+A _Publisher_ is able to broadcast data for a specific event, and also does not need to know about the receivers of said events.
+
+The _Event Bus_ acts as the sole intermediary between Subscribers and Publishers, forwarding data from publishers to subscribers for specific events.
+
+_Delegates_ are a convenient layer of indirection to use for decoupling between the Publisher and the Subscriber.
+
+### Simple General Flow
+1. A Publisher sends an event to the Event Bus with a payload.
+2. The Event Bus forwards the payload to all Subscribers for that event.
+3. Each Subscriber invokes the delegate that is registered for that event.
+
+## Minimal Unity C# Implementation
+Conveniently, because of the component-oriented nature of Unity C# scripting, this system can be implemented in a straightforward manner.
 
 ### Event Bus
 ```C#
@@ -104,6 +129,15 @@ public class EventSubscriber : MonoBehaviour
     {
         Debug.Log("Event received: " + eventName);
         eventActions[eventName].Invoke(data);
+    }
+}
+```
+
+### Example Usage
+```C#
+public class LevelController : MonoBehaviour {
+    void Start() {
+        EventBus.Publish("LevelStarted", Time.time);
     }
 }
 ```
