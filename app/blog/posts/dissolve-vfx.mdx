@@ -12,19 +12,110 @@ Strike a cool pose, throw your sword into the air and have it turn into dust, be
 Like I'm sure many of my tech bro peers would do, I asked Claude and DeepSeek: "how does genshin do it's disappearing weapon vfx?"
 I got back a pretty detailed and convincing answer, involving Dissolve Shaders, Particle Systems, Trail Renderers, Animation Synchronization, etc.
 
-It even gave me some code to go along with its answer, but to challenge myself, I decided to create the shader from scratch using ShaderGraph.
+It even gave me some code to go along with its answer, but to understand the concept better myself, I decided to create the shader from scratch using ShaderGraph.
 
-This little endeavour taught me about the concept of using a noise texture to "erode" the rendered output of a shader.
+At its core, the shader simply subtracts the noise value from the alpha value of the pixel output.
+Animated over time and combined with alpha clipping, it achieves the effect that the object's mesh is "dissolving".
 
-WIP:
-- Using a noise texture as a mask
-- Alpha clipping
-- VFX Graph
-- Faking it til you make it
+## Naive Implementation
+![Naive Graph](/images/dissolve-vfx/naive-graph.png)
+![Naive Graph](/images/dissolve-vfx/naive-graph-2.png)
 
-## Really Simple Dissolve VFX
+## Challenges
+Initially, I wanted to apply the dissolve shader as a sort of post-processing or multi-pass effect, which would allow it to be modularly applied to all materials regardless of whether they were lit or unlit.
+
+However, I soon realized that this was difficult to achieve within Unity's URP, not without significant effort using Scriptable Render Passes, etc. For now, I'll just make do with an Unlit surface shader.
+
+## Using VFX Graph
 <video className="mt-4" autoPlay preload="auto" playsInline muted loop>
     <source src="/videos/dissolve-vfx/dissolve-vfx.mp4" type="video/mp4" />
 </video>
 
 If you look closely, this effect doesn't do the exact same thing as the Genshin effect, but it does have a similar feel.
+
+WIP:
+- pcache
+
+## Dissolve Effect Controller
+Here's a simple implementation of a script to control the dissolution effect.
+```C#
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.VFX;
+
+[RequireComponent(typeof(Renderer))]
+public class DissolveEffectController : MonoBehaviour
+{
+    private Renderer renderer_;
+    [SerializeField] Material dissolveMaterial;
+
+    [SerializeField] float dissolveDuration = 1.0f;
+    [SerializeField] float dissolveThreshold = 1.0f;
+    [SerializeField] float particleSpawnThreshold = 0.5f;
+
+    [SerializeField] AnimationCurve dissolveCurve;
+    [SerializeField] AnimationCurve intensityCurve;
+
+    [SerializeField] VisualEffect dissolveParticlesVFX;
+
+    private Material[] originalMaterials;
+    private Material dissolveMatInstance;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        renderer_ = GetComponent<Renderer>();
+    }
+
+    public void Dissolve()
+    {
+        dissolveMaterial.SetFloat("_DissolveAmount", 0);
+        originalMaterials = renderer_.materials;
+
+        var materials = new Material[originalMaterials.Length];
+        dissolveMatInstance = new Material(dissolveMaterial);
+        dissolveMatInstance.SetTexture("_MainTex", originalMaterials[0].GetTexture("_MainTex"));
+
+        for (int i = 0; i < originalMaterials.Length; i++)
+        {
+            materials[i] = dissolveMatInstance;
+        }
+
+        renderer_.materials = materials;
+        StartCoroutine(DissolveCoroutine(dissolveThreshold));
+    }
+
+    IEnumerator DissolveCoroutine(float maxDissolveAmount)
+    {
+        float timer = 0f;
+        bool particlesSpawned = false;
+
+        while (timer < dissolveDuration)
+        {
+            timer += Time.deltaTime;
+            float t = timer / dissolveDuration;
+
+            if (!particlesSpawned && t > particleSpawnThreshold)
+            {
+                if (dissolveParticlesVFX != null)
+                {
+                    dissolveParticlesVFX.SendEvent("SpawnDissolveParticles");
+                    particlesSpawned = true;
+                }
+            }
+
+            if (t > maxDissolveAmount)
+                break;
+
+            dissolveMatInstance.SetFloat("_DissolveAmount", dissolveCurve.Evaluate(t));
+            dissolveMatInstance.SetFloat("_Intensity", intensityCurve.Evaluate(t));
+            yield return null;
+        }
+    }
+}
+```
+
+## Future Improvements
+- Support Lit Shader
+- Somehow make it a post-processing effect instead
