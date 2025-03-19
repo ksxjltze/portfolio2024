@@ -14,10 +14,10 @@ export const metadata: Metadata = {
     default: 'Lee Jia Keat',
     template: '%s | Lee Jia Keat',
   },
-  description: 'Life of a tech bro',
+  description: 'Life of a Malaysian Gen Z tech bro',
   openGraph: {
     title: 'Lee Jia Keat',
-    description: 'Life of a tech bro',
+    description: 'Life of a Malaysian Gen Z tech bro',
     url: baseUrl,
     siteName: 'LJK',
     locale: 'en_US',

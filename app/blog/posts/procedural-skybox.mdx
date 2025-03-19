@@ -3,6 +3,7 @@ title: 'Learning to make a Simple Procedural Skybox in Unity URP'
 publishedAt: '2025-03-14'
 summary: 'Learning shaders and stuff'
 tags: URP, Unity, HLSL, Shaders
+image: "/images/procedural-skybox/day-sky.png"
 ---
 
 Recently I've been asked to implement a day/night cycle for an upcoming game I've been working on. In practice, this is easily achievable using Unity's built-in procedural skybox shader.
@@ -138,6 +139,10 @@ WIP
 ### 3. Not correctly mapping UVs to spherical coordinates
 - Problem: My clouds are all stretched and weird!
 - Solution: Properly map your UVs.
+
+### 4. Texture Compression
+- Problem: My clouds look kinda ugly/jagged.
+- Solution: Make sure your textures are configured correctly, for the sharpest results, use Point Filtering with no compression.
 
 ## Additional Resources
 - [Seamless Procedural Blender Textures](https://www.youtube.com/watch?v=LwMwkUCe3KU)
