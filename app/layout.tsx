@@ -18,6 +18,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Lee Jia Keat',
     description: 'Life of a Malaysian Gen Z tech bro',
+    images: [
+      {
+        url: "/images/thumbnail.jpg",
+      },
+    ],
     url: baseUrl,
     siteName: 'LJK',
     locale: 'en_US',
