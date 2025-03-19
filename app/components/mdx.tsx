@@ -6,7 +6,7 @@ import React from 'react'
 
 import { Sandpack } from "@codesandbox/sandpack-react";
 
-const headings = {};
+const headings: any[] = [];
 
 function Table({ data }) {
   let headers = data.headers.map((header, index) => (
@@ -57,7 +57,7 @@ function Code({ children, ...props }) {
   return <code dangerouslySetInnerHTML={{ __html: codeHTML }} {...props} />
 }
 
-function Sandbox({children, ...props}) {
+function Sandbox({ children, ...props }) {
   return <Sandpack></Sandpack>
 }
 
@@ -76,22 +76,23 @@ function createHeading(level) {
   const Heading = ({ children }) => {
     let slug = slugify(children)
 
+    const slugLink = React.createElement('a', {
+      href: `#${slug}`,
+      key: `link-${slug}`,
+      className: 'anchor',
+    });
+
     return React.createElement(
       `h${level}`,
       { id: slug },
       [
-        React.createElement('a', {
-          href: `#${slug}`,
-          key: `link-${slug}`,
-          className: 'anchor',
-        }),
+        slugLink
       ],
       children
     )
   }
 
   Heading.displayName = `Heading${level}`
-
   return Heading
 }
 
@@ -111,9 +112,11 @@ let components = {
 
 export function CustomMDX(props) {
   return (
-    <MDXRemote
-      {...props}
-      components={{ ...components, ...(props.components || {}) }}
-    />
+    <section>
+      <MDXRemote
+        {...props}
+        components={{ ...components, ...(props.components || {}) }}
+      />
+    </section>
   )
 }
