@@ -124,9 +124,119 @@ Shader "Unlit/ProceduralSkybox"
 ![Primitive Sky](/images/procedural-skybox/primitive-sky.png)
 
 # Stars
+We can use some layered value noise to generate a star field.
+```
+// Pseudo-random function
+float rand(float3 co)
+{
+    return frac(sin(dot(co.xyz, float3(12.9898, 78.233, 45.5432))) * 43758.5453);
+}
+
+// Value noise function
+float valueNoise(float3 p)
+{
+    float3 ip = floor(p);
+    float3 fp = frac(p);
+    
+    float3 smooth = fp * fp * (3.0 - 2.0 * fp);
+    
+    float n000 = rand(ip);
+    float n001 = rand(ip + float3(0, 0, 1));
+    float n010 = rand(ip + float3(0, 1, 0));
+    float n011 = rand(ip + float3(0, 1, 1));
+    float n100 = rand(ip + float3(1, 0, 0));
+    float n101 = rand(ip + float3(1, 0, 1));
+    float n110 = rand(ip + float3(1, 1, 0));
+    float n111 = rand(ip + float3(1, 1, 1));
+    
+    // Interpolate along x
+    float n00 = lerp(n000, n100, smooth.x);
+    float n01 = lerp(n001, n101, smooth.x);
+    float n10 = lerp(n010, n110, smooth.x);
+    float n11 = lerp(n011, n111, smooth.x);
+    
+    // Interpolate along y
+    float n0 = lerp(n00, n10, smooth.y);
+    float n1 = lerp(n01, n11, smooth.y);
+    
+    // Interpolate along z
+    return lerp(n0, n1, smooth.z);
+}
+
+half4 generateStars(float3 viewDir) {
+    float3 dir = viewDir;
+    
+    // Scale the direction to control star density
+    float3 p = dir * _StarDensity;
+    
+    // Initialize color
+    float4 col = float4(0, 0, 0, 0);
+    
+    // Star field generation
+    for (int layer = 0; layer < _StarLayers; layer++)
+    {
+        // Add different scale noise layers
+        float3 layerPos = p * (1.0 + layer * 0.5);
+        
+        // Get base star value
+        float star = valueNoise(layerPos);
+        
+        // Threshold to create stars (adjust threshold for density)
+        float threshold = 0.97 - (layer * 0.01);
+        
+        if (star > threshold)
+        {
+            // Remap star value to 0-1 range for this threshold
+            star = (star - threshold) / (1.0 - threshold);
+            
+            // Apply star size adjustment (make smaller for more realism)
+            star = smoothstep(0, _StarSize, star);
+            
+            // Create twinkle effect
+            float twinkle = sin(_Time.y * _TwinkleSpeed + layerPos.x * 10 + layerPos.y * 10 + layerPos.z * 10);
+            twinkle = lerp(1, (twinkle * 0.5 + 0.5), _TwinkleAmount);
+            
+            // Apply different colors based on noise
+            float starTemperature = rand(floor(layerPos * 100));
+            float4 starColor = lerp(_StarColor1, _StarColor2, starTemperature);
+            
+            // Adjust brightness and color
+            float brightness = star * _StarIntensity * twinkle;
+            col += starColor * brightness;
+        }
+    }
+    
+    // Apply overall visibility from day-night cycle
+    col.rgba *= _Visibility;
+    
+    return col;
+}
+```
+
 WIP
 
 # Clouds
+Clouds can be achieved by sampling a noise or otherwise other cloudy texture.
+
+## Playing around with Math
+
+### Lerp
+
+### Smoothstep
+
+### Noise Erosion
+To add more depth to our clouds, we can use a separate noise texture to manipulate the cloud texels.
+
+#### Color Minus
+
+#### One Minus
+
+WIP
+
+## Cloud Mask
+
+## Scrolling
+
 ## Common Pitfalls
 ### 1. Not using Seamless textures
 - Problem: My clouds are ugly and don't wrap properly!
@@ -158,5 +268,3 @@ WIP
 - Noise, erosion, scrolling UVs, texture wrapping
 - Post Processing (Bloom, Color Filters, Tonemapping, etc.)
 - Volumetric Clouds (Raymarching)
-
-# Post Processing

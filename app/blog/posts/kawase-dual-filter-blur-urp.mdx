@@ -1,0 +1,25 @@
+---
+title: 'Kawase Dual Filter Blur'
+publishedAt: '2025-03-22'
+summary: 'Speedy Blur.'
+---
+
+A Kawase blur is better performing, close approximation of a Gaussian blur.
+
+An even faster implementation, dubbed "Dual filter", a.k.a Dual Kawase Blur, is introduced in a 2015 SIGGRAPH talk by Marius Bjørge.
+
+It utilizes downsampling and upsampling with different filtering kernels to achieve a Kawase blur effect, but at a significantly lower cost.
+
+While intended to be used for bloom, this can also be used directly as a blur filter.
+
+## Resources
+- [Intel Article](https://www.intel.com/content/www/us/en/developer/articles/technical/an-investigation-of-fast-real-time-gpu-based-image-blur-algorithms.html)
+- [Intel Video](https://www.intel.com/content/www/us/en/developer/videos/improving-real-time-gpu-based-image-blur-algorithms-kawase-blur-and-moving-box-averages.html)
+- [SIGGRAPH Notes](https://community.arm.com/cfs-file/__key/communityserver-blogs-components-weblogfiles/00-00-00-20-66/siggraph2015_2D00_mmg_2D00_marius_2D00_notes.pdf)
+
+## Unity implementation
+WIP
+
+- Scriptable Render Feature
+- Scriptable Render Pass
+- Shader
