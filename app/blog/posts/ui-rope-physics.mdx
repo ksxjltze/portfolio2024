@@ -1,0 +1,253 @@
+---
+title: Fake Rope Physics for Overlay Canvas UI
+publishedAt: '2025-03-22'
+summary: 'Rope'
+tags: snippet, unity, urp
+---
+
+Fake rope physics with __Verlet Integration__, using the Image component and multiple game objects for rendering instead of LineRenderer.
+
+## Verlet Integration TLDM (Too lazy, didn't math)
+Take the difference between the object's current position and its position 1 frame ago and add it to the latest position to apply inertia. 
+
+This gives us velocity and implicitly, collision resolution. Now apply constraints and add gravity to simulate ropes, cloth, etc.
+
+## Related resources
+- [Habrador Tutorials](https://www.habrador.com/tutorials/rope/)
+- [Discovering Verlet Integration](https://www.reddit.com/r/Unity3D/comments/pks6ys/i_learned_about_verlet_integration_thanks_to/)
+- [Verlet Integration as a General Integrator](https://www.reddit.com/r/gamedev/comments/1ymi4z/is_verlet_integration_misunderstood_or_am_i/)
+- [Simulate Tearable Cloth and Ragdolls](https://code.tutsplus.com/simulate-tearable-cloth-and-ragdolls-with-simple-verlet-integration--gamedev-519t)
+
+
+## Unity implementation
+This particular implementation is used to connect a rope between two images on an overlay canvas.
+
+Useful for the niche case that you want to render string-like physics on an Overlay canvas in Unity.
+
+A specific "container" transform is used to parent the spawned rope segments, to allow control of sorting order for rendering.
+
+E.g. Set the rope container transform to be the last sibling to force ropes to be rendered in front of other UI objects.
+
+How to use:
+1. Create a prefab with the Image component on it.
+2. Attach the script to any game object.
+3. Assign the start point, end point transforms, prefab and rope container.
+4. Call Init() to start the rope simulation (Or just rename it to Start)
+
+## Code
+```cs
+using UnityEngine;
+using UnityEngine.UI;
+using System.Collections.Generic;
+
+public class UIRope : MonoBehaviour
+{
+    public Transform startPoint;
+    public Transform endPoint;
+    public GameObject ropeSegmentPrefab;
+    
+    public int segmentCount = 20;
+    public float thickness = 5f;
+    public float ropeStrength = 1.0f;
+    public float gravity = 9.8f;
+
+    public int constraintIterations = 3;
+    public float damping = 0.95f;
+
+    public Vector3 startOffset;
+    public Vector3 endOffset;
+
+    public Transform ropeContainer;
+
+    private GameObject ropeObject;
+    private List<RopePoint> points = new List<RopePoint>();
+    private GameObject[] segments = null;
+    private List<Image> segmentImages;
+
+    private bool initialized = false;
+
+    [System.Serializable]
+    public class RopePoint
+    {
+        public Vector3 position;
+        public Vector3 oldPosition;
+        public bool isLocked = false;
+
+        public RopePoint(Vector3 pos, bool locked = false)
+        {
+            position = pos;
+            oldPosition = pos;
+            isLocked = locked;
+        }
+    }
+
+    public void Destroy()
+    {
+        initialized = false;
+        endPoint = null;
+        points.Clear();
+
+        //might be reused
+        foreach (var item in segments)
+        {
+            item.SetActive(false);
+        }
+    }
+
+    public void Init()
+    {
+        initialized = true;
+        InitializeRope();
+
+        if (segments == null)
+        {
+            segments = new GameObject[segmentCount - 1];
+            CreateRopeSegments();
+        }
+        else
+        {
+            foreach (var item in segments)
+            {
+                item.SetActive(true);
+            }
+        }
+    }
+
+    void InitializeRope()
+    {
+        points.Clear();
+
+        Vector3 startPos = startPoint.position + startOffset;
+        Vector3 endPos = endPoint.position + endOffset;
+
+        // Create points
+        for (int i = 0; i < segmentCount; i++)
+        {
+            float t = (float)i / (segmentCount - 1);
+            Vector3 pointPos = Vector3.Lerp(startPos, endPos, t);
+
+            RopePoint point = new RopePoint(pointPos);
+
+            // Lock first and last points
+            if (i == 0 || i == segmentCount - 1)
+                point.isLocked = true;
+
+            points.Add(point);
+        }
+    }
+
+    void CreateRopeSegments()
+    {
+        segmentImages = new List<Image>();
+        ropeObject = new GameObject("Rope");
+        ropeObject.transform.SetParent(ropeContainer);
+
+        for (int i = 0; i < segmentCount - 1; i++)
+        {
+            segments[i] = Instantiate(ropeSegmentPrefab, ropeObject.transform);
+            var image = segments[i].GetComponent<Image>();
+
+            segmentImages.Add(image);
+            image.rectTransform.sizeDelta = new Vector2(thickness, thickness);
+        }
+    }
+
+    void Update()
+    {
+        if (!initialized)
+            return;
+
+        // Always update the locked points to follow the UI elements
+        points[0].position = startPoint.position + startOffset;
+        points[0].oldPosition = startPoint.position + startOffset;
+
+        points[points.Count - 1].position = endPoint.position + endOffset;
+        points[points.Count - 1].oldPosition = endPoint.position + endOffset;
+
+        UpdateRopeSegments();
+    }
+
+    void FixedUpdate()
+    {
+        if (!initialized)
+            return;
+
+        Simulate(Time.fixedDeltaTime);
+    }
+
+    void Simulate(float deltaTime)
+    {
+        // Apply verlet integration
+        for (int i = 0; i < points.Count; i++)
+        {
+            if (points[i].isLocked)
+                continue;
+
+            Vector3 temp = points[i].position;
+            Vector3 velocity = (points[i].position - points[i].oldPosition) * damping;
+            points[i].position += velocity;
+
+            // Apply gravity
+            points[i].position += Vector3.down * gravity * deltaTime * deltaTime;
+
+            points[i].oldPosition = temp;
+        }
+
+        // Apply constraints multiple times for stability
+        for (int j = 0; j < constraintIterations; j++)
+        {
+            ApplyConstraints();
+        }
+    }
+
+    void ApplyConstraints()
+    {
+        float segmentLength = Vector3.Distance(startPoint.position + startOffset, endPoint.position + endOffset) / (segmentCount - 1);
+
+        // Apply distance constraints
+        for (int i = 0; i < points.Count - 1; i++)
+        {
+            RopePoint p1 = points[i];
+            RopePoint p2 = points[i + 1];
+
+            float currentDistance = Vector3.Distance(p1.position, p2.position);
+            float errorFactor = (currentDistance - segmentLength) / currentDistance;
+
+            Vector3 correctionVector = (p1.position - p2.position) * errorFactor * 0.5f * ropeStrength;
+
+            if (!p1.isLocked)
+                p1.position -= correctionVector;
+
+            if (!p2.isLocked)
+                p2.position += correctionVector;
+        }
+    }
+
+    void UpdateRopeSegments()
+    {
+        for (int i = 0; i < segments.Length; i++)
+        {
+            Vector3 startPos = points[i].position;
+            Vector3 endPos = points[i + 1].position;
+
+            // Position segment at midpoint
+            segments[i].transform.position = (startPos + endPos) * 0.5f;
+
+            // Calculate segment length and angle
+            float segmentLength = Vector3.Distance(startPos, endPos);
+            Vector3 direction = (endPos - startPos).normalized;
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+
+            // Apply rotation and scale
+            segments[i].transform.rotation = Quaternion.Euler(0, 0, angle);
+            segmentImages[i].rectTransform.sizeDelta = new Vector2(segmentLength, thickness);
+        }
+    }
+
+    // Call this when the UI elements move significantly to reset the simulation
+    public void ResetRope()
+    {
+        InitializeRope();
+    }
+}
+```
