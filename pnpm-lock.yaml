@@ -8,6 +8,9 @@ dependencies:
   '@codesandbox/sandpack-react':
     specifier: ^2.20.0
     version: 2.20.0(react-dom@18.2.0)(react@18.2.0)
+  '@heroicons/react':
+    specifier: ^2.2.0
+    version: 2.2.0(react@18.2.0)
   '@tailwindcss/postcss':
     specifier: 4.0.0-alpha.13
     version: 4.0.0-alpha.13(postcss@8.4.35)
@@ -26,9 +29,18 @@ dependencies:
   '@vercel/speed-insights':
     specifier: ^1.0.9
     version: 1.0.9(next@14.2.0-canary.62)(react@18.2.0)
+  class-variance-authority:
+    specifier: ^0.7.1
+    version: 0.7.1
+  clsx:
+    specifier: ^2.1.1
+    version: 2.1.1
   geist:
     specifier: 1.2.2
     version: 1.2.2(next@14.2.0-canary.62)
+  lucide-react:
+    specifier: ^0.483.0
+    version: 0.483.0(react@18.2.0)
   next:
     specifier: canary
     version: 14.2.0-canary.62(react-dom@18.2.0)(react@18.2.0)
@@ -47,9 +59,15 @@ dependencies:
   sugar-high:
     specifier: ^0.6.0
     version: 0.6.0
+  tailwind-merge:
+    specifier: ^3.0.2
+    version: 3.0.2
   tailwindcss:
     specifier: 4.0.0-alpha.13
     version: 4.0.0-alpha.13
+  tw-animate-css:
+    specifier: ^1.2.4
+    version: 1.2.4
   typescript:
     specifier: 5.3.3
     version: 5.3.3
@@ -188,6 +206,14 @@ packages:
       react-devtools-inline: 4.4.0
       react-dom: 18.2.0(react@18.2.0)
       react-is: 17.0.2
+    dev: false
+
+  /@heroicons/react@2.2.0(react@18.2.0):
+    resolution: {integrity: sha512-LMcepvRaS9LYHJGsF0zzmgKCUim/X3N/DQKc4jepAXJ7l8QxJ1PmxJzqplF2Z3FE4PqBAIGyJAQ/w4B5dsqbtQ==}
+    peerDependencies:
+      react: '>= 16 || ^19.0.0-rc'
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /@lezer/common@1.2.3:
@@ -692,12 +718,23 @@ packages:
     resolution: {integrity: sha512-iBZ4F4wRbyORVsu0jPV7gXkOsGYjGHPmAyv+HiHG8gi5PtC9KI2j1+v8/tlibRvjoWX027ypmG/n0HtO5t7unw==}
     dev: false
 
+  /class-variance-authority@0.7.1:
+    resolution: {integrity: sha512-Ka+9Trutv7G8M6WT6SeiRWz792K5qEqIGEGzXKhAE6xOWAY6pPH8U+9IY3oCMv6kqTmLsv7Xh/2w2RigkePMsg==}
+    dependencies:
+      clsx: 2.1.1
+    dev: false
+
   /clean-set@1.1.2:
     resolution: {integrity: sha512-cA8uCj0qSoG9e0kevyOWXwPaELRPVg5Pxp6WskLMwerx257Zfnh8Nl0JBH59d7wQzij2CK7qEfJQK3RjuKKIug==}
     dev: false
 
   /client-only@0.0.1:
     resolution: {integrity: sha512-IV3Ou0jSMzZrd3pZ48nLkT9DA7Ag1pnPzaiQhpW7c3RbcqqzvzzVu+L8gfqMp/8IM2MQtSiqaCxrrcfu8I8rMA==}
+    dev: false
+
+  /clsx@2.1.1:
+    resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
+    engines: {node: '>=6'}
     dev: false
 
   /comma-separated-tokens@2.0.3:
@@ -1081,6 +1118,14 @@ packages:
     hasBin: true
     dependencies:
       js-tokens: 4.0.0
+    dev: false
+
+  /lucide-react@0.483.0(react@18.2.0):
+    resolution: {integrity: sha512-WldsY17Qb/T3VZdMnVQ9C3DDIP7h1ViDTHVdVGnLZcvHNg30zH/MTQ04RTORjexoGmpsXroiQXZ4QyR0kBy0FA==}
+    peerDependencies:
+      react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /lz-string@1.5.0:
@@ -1797,6 +1842,10 @@ packages:
     engines: {node: '>= 0.4'}
     dev: false
 
+  /tailwind-merge@3.0.2:
+    resolution: {integrity: sha512-l7z+OYZ7mu3DTqrL88RiKrKIqO3NcpEO8V/Od04bNpvk0kiIFndGEoqfuzvj4yuhRkHKjRkII2z+KS2HfPcSxw==}
+    dev: false
+
   /tailwindcss@4.0.0-alpha.13:
     resolution: {integrity: sha512-YbLm8I10/bsGr7zrUNxn4Soj9Lc71anTWu/ulgry64rbBU4m0vov539+caeifAiKhsef2NUCW1twaqH3NfJd2Q==}
     dev: false
@@ -1811,6 +1860,10 @@ packages:
 
   /tslib@2.6.2:
     resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
+    dev: false
+
+  /tw-animate-css@1.2.4:
+    resolution: {integrity: sha512-yt+HkJB41NAvOffe4NweJU6fLqAlVx/mBX6XmHRp15kq0JxTtOKaIw8pVSWM1Z+n2nXtyi7cW6C9f0WG/F/QAQ==}
     dev: false
 
   /type@2.7.3:
