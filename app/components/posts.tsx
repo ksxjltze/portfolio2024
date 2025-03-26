@@ -1,12 +1,17 @@
 import Link from 'next/link'
-import { BlogPostData, formatBlogDate, formatDate, getBlogPosts, getBlogPostsByYear } from 'app/blog/utils'
+import { BlogPostData, formatBlogDate, getBlogPostsByYear } from 'app/blog/utils'
+import BlogSortingOptions from './BlogSortingOptions';
 
-export function BlogPosts() {
-  let blogPostsByYear = getBlogPostsByYear();
+export default function BlogPosts({searchParams}) {
+  const sortByUpdated = searchParams.sortByUpdated;
+  let blogPostsByYear = getBlogPostsByYear(sortByUpdated);
 
   return (
     <section>
-      <h1 className='text-2xl mb-2 font-bold'>Articles</h1>
+      <div className='flex flex-row'>
+        <h1 className='text-2xl mb-2 font-bold'>Articles</h1>
+        <BlogSortingOptions />
+      </div>
       {Array.from(blogPostsByYear).map(([year, posts]) => (
         <div key={year} className='mb-8'>
           <h2 className='text-xl mb-4 font-bold'>{year}</h2>

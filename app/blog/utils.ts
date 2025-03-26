@@ -72,11 +72,12 @@ export function getBlogPostsSorted() {
   })
 }
 
-export function getBlogPostsByYear() : Map<number, BlogPostData[]> {
+export function getBlogPostsByYear(byUpdated: boolean = false) : Map<number, BlogPostData[]> {
   const posts = new Map<number, BlogPostData[]>();
 
   getBlogPostsSorted().forEach((post) => {
-    let publishedDate = new Date(post.metadata.publishedAt);
+    const updatedDate = post.metadata.updatedAt ? post.metadata.updatedAt : post.metadata.publishedAt;
+    let publishedDate = new Date(byUpdated ? updatedDate : post.metadata.publishedAt);
     const year = publishedDate.getFullYear();
 
     let yearDict = posts.get(year);

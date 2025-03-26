@@ -72,15 +72,15 @@ export default function RootLayout({
         <link rel="manifest" href="/site.webmanifest" />
       </head>
       <body className="antialiased max-w-xl mx-4 mt-8 lg:mx-auto text-foreground dark:text-white bg-background">
-        <ThemeProvider>
-          <main className="flex-auto min-w-0 mt-6 flex flex-col px-2 md:px-0">
+        <main className="flex-auto min-w-0 mt-6 flex flex-col px-2 md:px-0">
+          <ThemeProvider>
             <Navbar />
             {children}
             <Footer />
-            <Analytics />
-            <SpeedInsights />
-          </main>
-        </ThemeProvider>
+          </ThemeProvider>
+          <Analytics />
+          <SpeedInsights />
+        </main>
       </body>
     </html>
   )

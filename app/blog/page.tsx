@@ -1,14 +1,14 @@
-import { BlogPosts } from 'app/components/posts'
+import BlogPosts from 'app/components/posts'
 
 export const metadata = {
   title: 'Articles',
   description: 'Ramblings of a Malaysian Generation Z CS grad',
 }
 
-export default function Page() {
+export default function Page({searchParams}) {
   return (
     <section>
-      <BlogPosts />
+      <BlogPosts searchParams={searchParams} />
     </section>
   )
 }

@@ -1,6 +1,6 @@
-import { BlogPosts } from 'app/components/posts'
+import BlogPosts from 'app/components/posts'
 
-export default function Page() {
+export default function Page({searchParams}) {
   return (
       <section>
         <div className="mb-8">
@@ -20,7 +20,7 @@ export default function Page() {
           Recently, I've been trying to create cool visual effects in Unity, using shaders, particles, procedural generation, post-processing, etc.
         </p>
         <div className="my-8">
-          <BlogPosts />
+          <BlogPosts searchParams={searchParams} />
         </div>
       </section>
   )
