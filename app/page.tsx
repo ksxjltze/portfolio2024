@@ -1,9 +1,7 @@
 import { BlogPosts } from 'app/components/posts'
-import { ThemeProvider } from './contexts/ThemeContext'
 
 export default function Page() {
   return (
-    <ThemeProvider>
       <section>
         <div className="mb-8">
           <p>Hello there, I'm
@@ -25,6 +23,5 @@ export default function Page() {
           <BlogPosts />
         </div>
       </section>
-    </ThemeProvider>
   )
 }

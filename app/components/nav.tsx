@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import ThemeToggle from './ThemeToggle'
 
 const navItems = {
   '/': {
@@ -32,6 +33,9 @@ export function Navbar() {
                 </Link>
               )
             })}
+          </div>
+          <div className='flex items-end ml-auto mr-0.5 mt-0.5'>
+            <ThemeToggle />
           </div>
         </nav>
       </div>
