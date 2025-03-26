@@ -1,32 +1,18 @@
 import Link from 'next/link'
-import { BlogPostData, formatBlogDate, getBlogPostsByYear } from 'app/blog/utils'
-import BlogSortingOptions from './BlogSortingOptions';
+import { getBlogPostsByYear, BlogPostData, formatBlogDate } from 'app/blog/utils'
 
-export default function BlogPosts({searchParams}) {
-  const sortByUpdated = searchParams.sortByUpdated;
-  let blogPostsByYear = getBlogPostsByYear(sortByUpdated);
-
-  return (
-    <section>
-      <div className='flex flex-row'>
-        <h1 className='text-2xl mb-2 font-bold'>Articles</h1>
-        <BlogSortingOptions />
+export function DisplayBlogLinks(sortByUpdated: boolean) {
+  return <div>
+    {Array.from(getBlogPostsByYear(sortByUpdated)).map(([year, posts]) => (
+      <div key={year} className='mb-8'>
+        <h2 className='text-xl mb-4 font-bold'>{year}</h2>
+        {posts.map((post) => BlogLink(post))}
       </div>
-      {Array.from(blogPostsByYear).map(([year, posts]) => (
-        <div key={year} className='mb-8'>
-          <h2 className='text-xl mb-4 font-bold'>{year}</h2>
-          {DisplayBlogLinks(posts)}
-        </div>
-      ))}
-    </section>
-  )
+    ))}
+  </div>;
 }
 
-function DisplayBlogLinks(posts : BlogPostData[]) {
-  return posts.map((post) => BlogLink(post));
-}
-
-function BlogLink(post) {
+export function BlogLink(post) {
   return (<Link
     key={post.slug}
     className="flex flex-col space-y-1 mb-4"

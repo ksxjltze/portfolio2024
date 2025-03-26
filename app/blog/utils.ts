@@ -72,10 +72,22 @@ export function getBlogPostsSorted() {
   })
 }
 
+function getBlogPostsSortedByUpdated() {
+  return getBlogPosts().sort((a, b) => {
+    if (
+      new Date(a.metadata.updatedAt ? a.metadata.updatedAt : a.metadata.publishedAt) > new Date(b.metadata.updatedAt ? b.metadata.updatedAt : b.metadata.publishedAt)
+    ) {
+      return -1;
+    }
+    return 1;
+  })
+}
+
 export function getBlogPostsByYear(byUpdated: boolean = false) : Map<number, BlogPostData[]> {
   const posts = new Map<number, BlogPostData[]>();
 
-  getBlogPostsSorted().forEach((post) => {
+  let sorted = byUpdated ? getBlogPostsSortedByUpdated() : getBlogPostsSorted();
+  sorted.forEach((post) => {
     const updatedDate = post.metadata.updatedAt ? post.metadata.updatedAt : post.metadata.publishedAt;
     let publishedDate = new Date(byUpdated ? updatedDate : post.metadata.publishedAt);
     const year = publishedDate.getFullYear();
@@ -93,7 +105,6 @@ export function getBlogPostsByYear(byUpdated: boolean = false) : Map<number, Blo
 }
 
 export function formatBlogDate(date: string) {
-  let currentDate = new Date()
   if (!date.includes('T')) {
     date = `${date}T00:00:00`
   }
