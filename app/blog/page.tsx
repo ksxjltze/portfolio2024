@@ -1,14 +1,23 @@
-import { BlogPosts } from 'app/components/posts'
+import { DisplayBlogLinks, FetchBlogParams } from 'app/components/posts'
+import BlogSortingOptions from '../components/BlogSortingOptions';
 
 export const metadata = {
   title: 'Articles',
   description: 'Ramblings of a Malaysian Generation Z CS grad',
 }
 
-export default function Page() {
+export default async function Page(props) {
+  const [sortByUpdated, sortAscending] = await FetchBlogParams(props.searchParams);
+
   return (
-    <section>
-      <BlogPosts />
-    </section>
+    <div className="my-8">
+      <section>
+        <div className='flex flex-row'>
+          <h1 className='text-2xl mb-2 font-bold'>Articles</h1>
+          <BlogSortingOptions />
+        </div>
+        {DisplayBlogLinks(sortByUpdated, sortAscending)}
+      </section>
+    </div>
   )
 }

@@ -1,10 +1,14 @@
-import { BlogPosts } from 'app/components/posts'
 
-export default function Page() {
+import BlogSortingOptions from './components/BlogSortingOptions';
+import { DisplayBlogLinks, FetchBlogParams } from 'app/components/posts';
+
+export default async function Page(props: { searchParams }) {
+  const [sortByUpdated, sortAscending] = await FetchBlogParams(props.searchParams);
+
   return (
     <section>
       <div className="mb-8">
-        <p>Hello there, I'm
+            <p>Hello there, I'm
           <span className="ml-1.5 inline-block text-2xl font-semibold tracking-tighter">
             Lee Jia Keat
           </span>, I like to build things, and make cool things.
@@ -20,8 +24,14 @@ export default function Page() {
         Recently, I've been trying to create cool visual effects in Unity, using shaders, particles, procedural generation, post-processing, etc.
       </p>
       <div className="my-8">
-        <BlogPosts />
+        <section>
+          <div className='flex flex-row'>
+            <h1 className='text-2xl mb-2 font-bold'>Articles</h1>
+            <BlogSortingOptions />
+          </div>
+            {DisplayBlogLinks(sortByUpdated, sortAscending )}
+        </section>
       </div>
     </section>
   )
-}
+};
