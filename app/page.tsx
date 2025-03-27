@@ -4,6 +4,7 @@ import { DisplayBlogLinks } from 'app/components/posts';
 export default async function Page(props: { searchParams }) {
   const searchParams = await props.searchParams;
   const sortByUpdated = searchParams?.sortByUpdated?.toLowerCase() === 'true';
+  const sortAscensing = searchParams?.sortAscending?.toLowerCase() === 'true';
 
   return (
     <section>
@@ -29,7 +30,7 @@ export default async function Page(props: { searchParams }) {
             <h1 className='text-2xl mb-2 font-bold'>Articles</h1>
             <BlogSortingOptions />
           </div>
-            {DisplayBlogLinks(sortByUpdated)}
+            {DisplayBlogLinks(sortByUpdated, sortAscensing)}
         </section>
       </div>
     </section>

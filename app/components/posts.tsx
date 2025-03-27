@@ -1,9 +1,9 @@
 import Link from 'next/link'
 import { getBlogPostsByYear, BlogPostData, formatBlogDate } from 'app/blog/utils'
 
-export function DisplayBlogLinks(sortByUpdated: boolean) {
+export function DisplayBlogLinks(sortByUpdated: boolean, sortAscending: boolean) {
   return <div>
-    {Array.from(getBlogPostsByYear(sortByUpdated)).map(([year, posts]) => (
+    {Array.from(getBlogPostsByYear(sortByUpdated, sortAscending)).map(([year, posts]) => (
       <div key={year} className='mb-8'>
         <h2 className='text-xl mb-4 font-bold'>{year}</h2>
         {posts.map((post) => BlogLink(post, sortByUpdated))}

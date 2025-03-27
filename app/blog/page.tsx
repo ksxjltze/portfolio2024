@@ -9,6 +9,7 @@ export const metadata = {
 export default async function Page(props) {
   const searchParams = await props.searchParams;
   const sortByUpdated = searchParams?.sortByUpdated?.toLowerCase() === 'true';
+  const sortAscending = searchParams?.sortAscending?.toLowerCase() === 'true';
 
   return (
     <div className="my-8">
@@ -17,7 +18,7 @@ export default async function Page(props) {
           <h1 className='text-2xl mb-2 font-bold'>Articles</h1>
           <BlogSortingOptions />
         </div>
-        {DisplayBlogLinks(sortByUpdated)}
+        {DisplayBlogLinks(sortByUpdated, sortAscending)}
       </section>
     </div>
   )

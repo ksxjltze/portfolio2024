@@ -61,10 +61,11 @@ export function getBlogPosts() {
   return getMDXData(path.join(process.cwd(), 'app', 'blog', 'posts'))
 }
 
-export function getBlogPostsSorted() {
+export function getBlogPostsSorted(ascending: boolean = false) {
   return getBlogPosts().sort((a, b) => {
     if (
-      new Date(a.metadata.publishedAt) > new Date(b.metadata.publishedAt)
+      ascending ? new Date(a.metadata.publishedAt) < new Date(b.metadata.publishedAt)
+      : new Date(a.metadata.publishedAt) > new Date(b.metadata.publishedAt)
     ) {
       return -1;
     }
@@ -72,10 +73,11 @@ export function getBlogPostsSorted() {
   })
 }
 
-function getBlogPostsSortedByUpdated() {
+function getBlogPostsSortedByUpdated(ascending: boolean = false) {
   return getBlogPosts().sort((a, b) => {
     if (
-      new Date(a.metadata.updatedAt ? a.metadata.updatedAt : a.metadata.publishedAt) > new Date(b.metadata.updatedAt ? b.metadata.updatedAt : b.metadata.publishedAt)
+      ascending ? new Date(a.metadata.updatedAt ? a.metadata.updatedAt : a.metadata.publishedAt) < new Date(b.metadata.updatedAt ? b.metadata.updatedAt : b.metadata.publishedAt)
+      : new Date(a.metadata.updatedAt ? a.metadata.updatedAt : a.metadata.publishedAt) > new Date(b.metadata.updatedAt ? b.metadata.updatedAt : b.metadata.publishedAt)
     ) {
       return -1;
     }
@@ -83,10 +85,10 @@ function getBlogPostsSortedByUpdated() {
   })
 }
 
-export function getBlogPostsByYear(byUpdated: boolean = false) : Map<number, BlogPostData[]> {
+export function getBlogPostsByYear(byUpdated: boolean = false, byAscending: boolean = false) : Map<number, BlogPostData[]> {
   const posts = new Map<number, BlogPostData[]>();
 
-  let sorted = byUpdated ? getBlogPostsSortedByUpdated() : getBlogPostsSorted();
+  let sorted = byUpdated ? getBlogPostsSortedByUpdated(byAscending) : getBlogPostsSorted(byAscending);
   sorted.forEach((post) => {
     const updatedDate = post.metadata.updatedAt ? post.metadata.updatedAt : post.metadata.publishedAt;
     let publishedDate = new Date(byUpdated ? updatedDate : post.metadata.publishedAt);
