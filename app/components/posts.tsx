@@ -1,37 +1,36 @@
 import Link from 'next/link'
-import { getBlogPostsByYear, BlogPostData, formatBlogDate } from 'app/blog/utils'
-import { Yesteryear } from 'next/font/google';
+import { getBlogPostsByYear, formatBlogDate } from 'app/blog/utils'
 
 export async function FetchBlogParams(searchParams) {
   const params = await searchParams;
 
-  const sortAscending = params.sortAscending?.toLowerCase() === 'true';
+  const sortNewestFirst = params.sortNewestFirst?.toLowerCase() === 'true';
   const sortByUpdated = params.sortByUpdated?.toLowerCase() === 'true';
 
-  return [sortByUpdated, sortAscending];
+  return [sortByUpdated, sortNewestFirst];
 }
 
-export function DisplayBlogLinks(sortByUpdated: boolean, sortAscending: boolean) {
+export function DisplayBlogLinks(sortByUpdated: boolean, sortNewestFirst: boolean) {
   return <div>
-    {Array.from(getBlogPostsByYear(sortByUpdated, sortAscending))
-    .sort((a, b) => {
-      const [yearA, _A] = a;
-      const [yearB, _B] = b;
+    {Array.from(getBlogPostsByYear(sortByUpdated, sortNewestFirst))
+      .toSorted((a, b) => {
+        const [yearA, _A] = a;
+        const [yearB, _B] = b;
 
-      return sortAscending ? yearA - yearB : yearB - yearA;
-    })
-    .map(([year, posts]) => (
-      <div key={year} className='mb-8'>
-        <h2 className='text-xl mb-4 font-bold'>{year}</h2>
-        {posts.map((post) => BlogLink(post, sortByUpdated))}
-      </div>
-    ))}
+        return sortNewestFirst ? yearA - yearB : yearB - yearA;
+      })
+      .map(([year, posts]) => (
+        <div key={year} className='mb-8'>
+          <h2 className='text-xl mb-4 font-bold'>{year}</h2>
+          {posts.map((post) => BlogLink(post, sortByUpdated))}
+        </div>
+      ))}
   </div>;
 }
 
-export function BlogLink(post, sortByUpdated) {
-  const useUpdatedAtDates = sortByUpdated && post.metadata.updatedAt;
-  const textStyle = useUpdatedAtDates ? "text-accent-foreground" : "text-muted-foreground";
+export function BlogLink(post, useUpdatedAt) {
+  const useUpdatedAtDates = useUpdatedAt && post.metadata.updatedAt;
+  const textStyle = useUpdatedAtDates ? "text-indigo-500" : "text-muted-foreground";
 
   return (<Link
     key={post.slug}

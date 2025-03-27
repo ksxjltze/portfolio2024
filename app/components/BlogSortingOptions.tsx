@@ -1,7 +1,7 @@
 'use client'
 
 import { AdjustmentsHorizontalIcon, AdjustmentsVerticalIcon, BarsArrowDownIcon, BarsArrowUpIcon } from "@heroicons/react/24/outline";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 
 import {
@@ -17,24 +17,33 @@ export default function BlogSortingOptions() {
     const { replace } = useRouter();
 
     let [sortByUpdated, setSortByUpdated] = useState(true);
-    let [sortAscending, setSortAscending] = useState(false);
+    let [sortNewestFirst, setSortNewestFirst] = useState(false);
+
+    useEffect(() => {
+        if (searchParams?.size == 0) {
+            const params = new URLSearchParams(Array.from(searchParams.entries()));
+            params.set("sortByUpdated", sortByUpdated.toString());
+            params.set("sortNewestFirst", sortNewestFirst.toString());
+            replace(`${pathname}?${params.toString()}`);
+        }
+    }, [searchParams]);
 
     function toggleSortByUpdated() {
         if (searchParams) {
             const params = new URLSearchParams(Array.from(searchParams.entries()));
-            setSortByUpdated(!sortByUpdated);
+            sortByUpdated = !(searchParams.get("sortByUpdated")?.toLowerCase() === 'true');
+            setSortByUpdated(sortByUpdated);
             params.set("sortByUpdated", sortByUpdated.toString());
-            params.set("sortAscending", sortAscending.toString());
             replace(`${pathname}?${params.toString()}`);
         }
     }
 
-    function toggleSortAscending() {
+    function toggleSortNewestFirst() {
         if (searchParams) {
             const params = new URLSearchParams(Array.from(searchParams.entries()));
-            setSortAscending(!sortAscending);
-            params.set("sortByUpdated", sortByUpdated.toString());
-            params.set("sortAscending", sortAscending.toString());
+            sortNewestFirst = !(searchParams.get("sortNewestFirst")?.toLowerCase() === 'true');
+            setSortNewestFirst(sortNewestFirst);
+            params.set("sortNewestFirst", sortNewestFirst.toString());
             replace(`${pathname}?${params.toString()}`);
         }
     }
@@ -53,10 +62,10 @@ export default function BlogSortingOptions() {
         <TooltipProvider>
             <Tooltip>
                 <TooltipTrigger className="w-7 h-7">
-                    {sortAscending ? <BarsArrowUpIcon onClick={toggleSortAscending} /> : <BarsArrowDownIcon onClick={toggleSortAscending} />}
+                    {sortNewestFirst ? <BarsArrowDownIcon onClick={toggleSortNewestFirst} /> : <BarsArrowUpIcon onClick={toggleSortNewestFirst} />}
                 </TooltipTrigger>
                 <TooltipContent>
-                    <p>{sortAscending ? "Sort Descending" : "Sort Ascending"}</p>
+                    <p>{sortNewestFirst ? "Show Newest First" : "Show Oldest First"}</p>
                 </TooltipContent>
             </Tooltip>
         </TooltipProvider>
