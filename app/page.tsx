@@ -1,9 +1,7 @@
 
-import BlogSortingOptions from './components/BlogSortingOptions';
-import { DisplayBlogLinks, FetchBlogParams } from 'app/components/posts';
+import { DisplayBlogLinks } from 'app/components/posts';
 
-export default async function Page(props: { searchParams }) {
-  const [sortByUpdated, sortNewestFirst] = await FetchBlogParams(props.searchParams);
+export default async function Page() {
 
   return (
     <section>
@@ -27,9 +25,8 @@ export default async function Page(props: { searchParams }) {
         <section>
           <div className='flex flex-row'>
             <h1 className='text-2xl mb-2 font-bold'>Articles</h1>
-            <BlogSortingOptions/>
           </div>
-            {DisplayBlogLinks(sortByUpdated, sortNewestFirst )}
+            {DisplayBlogLinks(true, false )}
         </section>
       </div>
     </section>

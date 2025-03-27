@@ -1,7 +1,7 @@
 'use client'
 
 import { AdjustmentsHorizontalIcon, AdjustmentsVerticalIcon, BarsArrowDownIcon, BarsArrowUpIcon } from "@heroicons/react/24/outline";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 
 import {
@@ -17,13 +17,13 @@ export default function BlogSortingOptions() {
     const { replace } = useRouter();
 
     let [sortByUpdated, setSortByUpdated] = useState(true);
-    let [sortNewestFirst, setSortNewestFirst] = useState(false);
+    let [sortOldestFirst, setsortOldestFirst] = useState(false);
 
     useEffect(() => {
         if (searchParams?.size == 0) {
             const params = new URLSearchParams(Array.from(searchParams.entries()));
             params.set("sortByUpdated", sortByUpdated.toString());
-            params.set("sortNewestFirst", sortNewestFirst.toString());
+            params.set("sortOldestFirst", sortOldestFirst.toString());
             replace(`${pathname}?${params.toString()}`);
         }
     }, [searchParams]);
@@ -38,12 +38,12 @@ export default function BlogSortingOptions() {
         }
     }
 
-    function toggleSortNewestFirst() {
+    function togglesortOldestFirst() {
         if (searchParams) {
             const params = new URLSearchParams(Array.from(searchParams.entries()));
-            sortNewestFirst = !(searchParams.get("sortNewestFirst")?.toLowerCase() === 'true');
-            setSortNewestFirst(sortNewestFirst);
-            params.set("sortNewestFirst", sortNewestFirst.toString());
+            sortOldestFirst = !(searchParams.get("sortOldestFirst")?.toLowerCase() === 'true');
+            setsortOldestFirst(sortOldestFirst);
+            params.set("sortOldestFirst", sortOldestFirst.toString());
             replace(`${pathname}?${params.toString()}`);
         }
     }
@@ -62,10 +62,10 @@ export default function BlogSortingOptions() {
         <TooltipProvider>
             <Tooltip>
                 <TooltipTrigger className="w-7 h-7">
-                    {sortNewestFirst ? <BarsArrowDownIcon onClick={toggleSortNewestFirst} /> : <BarsArrowUpIcon onClick={toggleSortNewestFirst} />}
+                    {sortOldestFirst ? <BarsArrowDownIcon onClick={togglesortOldestFirst} /> : <BarsArrowUpIcon onClick={togglesortOldestFirst} />}
                 </TooltipTrigger>
                 <TooltipContent>
-                    <p>{sortNewestFirst ? "Show Newest First" : "Show Oldest First"}</p>
+                    <p>{sortOldestFirst ? "Show Newest First" : "Show Oldest First"}</p>
                 </TooltipContent>
             </Tooltip>
         </TooltipProvider>

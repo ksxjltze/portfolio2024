@@ -4,20 +4,20 @@ import { getBlogPostsByYear, formatBlogDate } from 'app/blog/utils'
 export async function FetchBlogParams(searchParams) {
   const params = await searchParams;
 
-  const sortNewestFirst = params.sortNewestFirst?.toLowerCase() === 'true';
+  const sortOldestFirst = params.sortOldestFirst?.toLowerCase() === 'true';
   const sortByUpdated = params.sortByUpdated?.toLowerCase() === 'true';
 
-  return [sortByUpdated, sortNewestFirst];
+  return [sortByUpdated, sortOldestFirst];
 }
 
-export function DisplayBlogLinks(sortByUpdated: boolean, sortNewestFirst: boolean) {
+export function DisplayBlogLinks(sortByUpdated: boolean, sortOldestFirst: boolean) {
   return <div>
-    {Array.from(getBlogPostsByYear(sortByUpdated, sortNewestFirst))
+    {Array.from(getBlogPostsByYear(sortByUpdated, sortOldestFirst))
       .toSorted((a, b) => {
         const [yearA, _A] = a;
         const [yearB, _B] = b;
 
-        return sortNewestFirst ? yearA - yearB : yearB - yearA;
+        return sortOldestFirst ? yearA - yearB : yearB - yearA;
       })
       .map(([year, posts]) => (
         <div key={year} className='mb-8'>
