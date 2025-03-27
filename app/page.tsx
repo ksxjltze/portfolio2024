@@ -1,15 +1,14 @@
+
 import BlogSortingOptions from './components/BlogSortingOptions';
-import { DisplayBlogLinks } from 'app/components/posts';
+import { DisplayBlogLinks, FetchBlogParams } from 'app/components/posts';
 
 export default async function Page(props: { searchParams }) {
-  const searchParams = await props.searchParams;
-  const sortByUpdated = searchParams?.sortByUpdated?.toLowerCase() === 'true';
-  const sortAscensing = searchParams?.sortAscending?.toLowerCase() === 'true';
+  const [sortByUpdated, sortAscending] = await FetchBlogParams(props.searchParams);
 
   return (
     <section>
       <div className="mb-8">
-        <p>Hello there, I'm
+            <p>Hello there, I'm
           <span className="ml-1.5 inline-block text-2xl font-semibold tracking-tighter">
             Lee Jia Keat
           </span>, I like to build things, and make cool things.
@@ -30,7 +29,7 @@ export default async function Page(props: { searchParams }) {
             <h1 className='text-2xl mb-2 font-bold'>Articles</h1>
             <BlogSortingOptions />
           </div>
-            {DisplayBlogLinks(sortByUpdated, sortAscensing)}
+            {DisplayBlogLinks(sortByUpdated, sortAscending )}
         </section>
       </div>
     </section>

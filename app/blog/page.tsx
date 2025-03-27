@@ -1,4 +1,4 @@
-import { DisplayBlogLinks } from 'app/components/posts'
+import { DisplayBlogLinks, FetchBlogParams } from 'app/components/posts'
 import BlogSortingOptions from '../components/BlogSortingOptions';
 
 export const metadata = {
@@ -7,9 +7,7 @@ export const metadata = {
 }
 
 export default async function Page(props) {
-  const searchParams = await props.searchParams;
-  const sortByUpdated = searchParams?.sortByUpdated?.toLowerCase() === 'true';
-  const sortAscending = searchParams?.sortAscending?.toLowerCase() === 'true';
+  const [sortByUpdated, sortAscending] = await FetchBlogParams(props.searchParams);
 
   return (
     <div className="my-8">

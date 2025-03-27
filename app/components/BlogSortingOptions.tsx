@@ -17,7 +17,7 @@ export default function BlogSortingOptions() {
     const { replace } = useRouter();
 
     let [sortByUpdated, setSortByUpdated] = useState(true);
-    let [sortAscending, setSortAscending] = useState(true);
+    let [sortAscending, setSortAscending] = useState(false);
 
     function toggleSortByUpdated() {
         if (searchParams) {

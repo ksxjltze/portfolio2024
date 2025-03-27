@@ -1,9 +1,26 @@
 import Link from 'next/link'
 import { getBlogPostsByYear, BlogPostData, formatBlogDate } from 'app/blog/utils'
+import { Yesteryear } from 'next/font/google';
+
+export async function FetchBlogParams(searchParams) {
+  const params = await searchParams;
+
+  const sortAscending = params.sortAscending?.toLowerCase() === 'true';
+  const sortByUpdated = params.sortByUpdated?.toLowerCase() === 'true';
+
+  return [sortByUpdated, sortAscending];
+}
 
 export function DisplayBlogLinks(sortByUpdated: boolean, sortAscending: boolean) {
   return <div>
-    {Array.from(getBlogPostsByYear(sortByUpdated, sortAscending)).map(([year, posts]) => (
+    {Array.from(getBlogPostsByYear(sortByUpdated, sortAscending))
+    .sort((a, b) => {
+      const [yearA, _A] = a;
+      const [yearB, _B] = b;
+
+      return sortAscending ? yearA - yearB : yearB - yearA;
+    })
+    .map(([year, posts]) => (
       <div key={year} className='mb-8'>
         <h2 className='text-xl mb-4 font-bold'>{year}</h2>
         {posts.map((post) => BlogLink(post, sortByUpdated))}
