@@ -4,6 +4,13 @@ import { AdjustmentsHorizontalIcon, AdjustmentsVerticalIcon } from "@heroicons/r
 import { useState } from "react";
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
+
 export default function BlogSortingOptions() {
     const searchParams = useSearchParams();
     const pathname = usePathname();
@@ -21,6 +28,15 @@ export default function BlogSortingOptions() {
     }
 
     return (<div className="ml-auto w-7 h-7 align-middle items-center justify-center">
-        {sortByUpdated ? <AdjustmentsHorizontalIcon onClick={toggleSortByUpdated} /> : <AdjustmentsVerticalIcon onClick={toggleSortByUpdated} />}
+        <TooltipProvider>
+            <Tooltip>
+                <TooltipTrigger>
+                    {sortByUpdated ? <AdjustmentsHorizontalIcon onClick={toggleSortByUpdated} /> : <AdjustmentsVerticalIcon onClick={toggleSortByUpdated} />}
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>Add to library</p>
+                </TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
     </div>);
 }
