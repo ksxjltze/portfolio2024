@@ -1,7 +1,7 @@
 'use client'
 
 import { AdjustmentsHorizontalIcon, AdjustmentsVerticalIcon } from "@heroicons/react/24/outline";
-import { MouseEvent, MouseEventHandler, useState } from "react";
+import { useState } from "react";
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 
 export default function BlogSortingOptions() {

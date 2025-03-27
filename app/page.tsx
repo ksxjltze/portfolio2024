@@ -1,7 +1,7 @@
 import BlogSortingOptions from './components/BlogSortingOptions';
 import { DisplayBlogLinks } from 'app/components/posts';
 
-export default async function Page(props: { searchParams: {[key: string] : string}; }) {
+export default async function Page(props: { searchParams }) {
   const searchParams = await props.searchParams;
   const sortByUpdated = searchParams?.sortByUpdated?.toLowerCase() === 'true';
 
