@@ -30,11 +30,11 @@ export default function BlogSortingOptions() {
     return (<div className="ml-auto w-7 h-7 align-middle items-center justify-center">
         <TooltipProvider>
             <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger className="w-full h-full">
                     {sortByUpdated ? <AdjustmentsHorizontalIcon onClick={toggleSortByUpdated} /> : <AdjustmentsVerticalIcon onClick={toggleSortByUpdated} />}
                 </TooltipTrigger>
                 <TooltipContent>
-                    <p>Add to library</p>
+                    <p>{sortByUpdated ? "Sort by Published" : "Sort by Updated"}</p>
                 </TooltipContent>
             </Tooltip>
         </TooltipProvider>
