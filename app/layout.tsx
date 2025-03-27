@@ -69,7 +69,6 @@ export default function RootLayout({
         <link rel="shortcut icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <meta name="apple-mobile-web-app-title" content="Lee Jia Keat" />
-        <link rel="manifest" href="/site.webmanifest" />
       </head>
       <body className="antialiased max-w-xl mx-4 mt-8 lg:mx-auto text-foreground dark:text-white bg-background">
         <main className="flex-auto min-w-0 mt-6 flex flex-col px-2 md:px-0">
