@@ -1,0 +1,106 @@
+---
+title: 'Modals and Menus using Unity UI Toolkit'
+publishedAt: '2025-04-04'
+updatedAt: '2025-04-09'
+summary: 'Trying to make UI less painful.'
+---
+
+I detest doing UI in Unity, there are so many pain points working with Unity's canvas system. 
+
+The alignment system feels finicky, resolution is always a pain to deal with, yada yada UI is pain.
+
+Don't even get me started on render textures, world-space UI and all that jazz.
+
+Working with UI in Unity makes me miss doing UI on the web, flexbox is truly a blessing. Sometimes I kinda wish we had something like modern web dev in Unity.
+
+Can we though?
+
+## Tailwind in Unity??
+
+After doing frontend web development with tailwind css, there is simply no going back, the ease of use and convenience easily leads to rapid iterative development, which just happens to be my cup of tea.
+
+Fortunately, Unity has this handy new-ish shiny framework called UI Toolkit, which attempts to replicate many web development paradigms (flexbox yay).
+
+Unfortunately, it doesn't include a one-to-one replication of HTML and CSS, instead, Unity has their own languages for markup and styling called UXML and USS respectively.
+
+This means a bit of mental overhead when trying to translate between typical web development habits and making them work in UI Toolkit.
+
+## Rolling my own "Tailwind"
+
+My current solution is to build my own Tailwind-inspired styling system, using a global styles.uss file and importing it in every UXML file I use.
+
+I create the classes and selectors that I need on the fly, as trying to replicate the whole of Tailwind would be way overkill for indie game purposes.
+
+## Making a Modular UI System
+
+Reusable UI is a huge time saver, especially with repetitive types like modals and menus, even better if we can reuse it across all our projects.
+
+## So how can we do this?
+
+The way I approach this problem is to use prefabs, scriptable objects and a lot of UXML document state mutation, with a main UI controller singleton to manage opening and closing various types of menus.
+
+Every prefab is attached to a UIObject component, which drives initialization logic, e.g. querying the root visual element for specific elements to update.
+
+This prefab is then consumed by the UI Controller, or other UI Sub Controllers, opening the corresponding menu when requested by user input or events.
+
+## Modal Abstraction
+To abstract the finer details of working with UXML and USS, I have opted to create a ScriptableObject to allow users of my "framework" to create their own custom modal templates.
+
+Although, the full potential of this system is only unlocked by tapping into the tailwind paradigm, slinging classes really lets you go wild with prototyping.
+
+## ModalOptionsObject
+```cs
+    public class ModalOptionsObject : ScriptableObject
+    {
+        public string title;
+        public string content;
+        public Texture2D background;
+        public Color tint; //used if no background, otherwise tint
+
+        [Header("Modal Appearance")]
+        [Tooltip("Leave 0 for auto sizing")]
+        public float width = 0f;
+        [Tooltip("Leave 0 for auto sizing")]
+        public float height = 0f;
+        [Tooltip("Sizing is ignored here unless width and height are auto")]
+        public string styleClassString;
+
+        [Header("Modal Actions")]
+        public List<string> actionsText;
+        [Tooltip("One element per action for now")]
+        public List<UnityEvent> actions;
+        public List<string> actionStyleClasses;
+    }
+```
+
+### Simple Modal UXML Template
+```UXML
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Documents/styles.uss?fileID=7433441132597879392&amp;guid=8c11b55d26b20e841b288acd365a7261&amp;type=3#styles" />
+    <ui:VisualElement class="absolute inset-0 bg-black-transparent-50 flex justify-center items-center">
+        <ui:VisualElement name="modal-background" class="bg-white w-96 rounded-lg shadow-lg" style="width: auto;">
+            <ui:Label name="modal-title" text="Modal Title" class="p-4 text-lg font-bold border-b" />
+            <ui:Label name="modal-content" text="This is the modal content. Add any elements you need here." class="p-4 wrap" />
+            <ui:VisualElement name="modal-actions" class="p-4 flex flex-row w-full justify-end items-end gap-4 border-t">
+                <ui:Button name="modal-button-a" text="Cancel" class="bg-gray-500 text-white px-4 py-2 rounded" />
+                <ui:Button name="modal-button-b" text="Confirm" class="bg-blue-500 text-white px-4 py-2 rounded" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
+```
+
+### Modal Demo
+<video autoPlay preload="auto" playsInline muted loop>
+    <source src="/videos/unity-ui-painge/modal.mp4" type="video/mp4" />
+</video>
+
+## Where's the rest of the code??
+There's a lot of missing gaps here, which I won't be able to reveal entirely because of confidentiality reasons (for now).
+
+## Possible Future Features and Ideas
+- Add support for mixing Canvas UI, render textures, shaders, etc.
+- Custom Menu Types
+- Proper UI Stacking System
+- Global Theme System
+- React-like declarative components
