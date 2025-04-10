@@ -1,7 +1,7 @@
 ---
 title: 'Modals and Menus using Unity UI Toolkit'
 publishedAt: '2025-04-04'
-updatedAt: '2025-04-09'
+updatedAt: '2025-04-10'
 summary: 'Trying to make UI less painful.'
 ---
 
@@ -42,6 +42,10 @@ The way I approach this problem is to use prefabs, scriptable objects and a lot 
 Every prefab is attached to a UIObject component, which drives initialization logic, e.g. querying the root visual element for specific elements to update.
 
 This prefab is then consumed by the UI Controller, or other UI Sub Controllers, opening the corresponding menu when requested by user input or events.
+
+This system is a sort-of bastardized version of MVC architecture, the UIObject prefab is the Model (Data, Logic), the UXML and USS documents are the View and then we can have a separate script to act as the controller.
+
+How does the main controller come into all this then? Well, it simply acts as a convenient global single point of entry to open any registered menus, modals and other custom UI objects.
 
 ## Modal Abstraction
 To abstract the finer details of working with UXML and USS, I have opted to create a ScriptableObject to allow users of my "framework" to create their own custom modal templates.
