@@ -30,7 +30,7 @@ export function DisplayBlogLinks(sortByUpdated: boolean, sortOldestFirst: boolea
 
 export function BlogLink(post, useUpdatedAt) {
   const useUpdatedAtDates = useUpdatedAt && post.metadata.updatedAt;
-  const textStyle = useUpdatedAtDates ? "text-indigo-500" : "text-muted-foreground";
+  const textStyle = useUpdatedAtDates ? "dark:text-indigo-300 text-violet-800" : "text-foreground";
 
   return (<Link
     key={post.slug}
@@ -40,7 +40,7 @@ export function BlogLink(post, useUpdatedAt) {
       <p className={`${textStyle} w-[100px] tabular-nums`}>
         {formatBlogDate(useUpdatedAtDates ? post.metadata.updatedAt : post.metadata.publishedAt)}
       </p>
-      <p className="font-bold text-neutral-900 dark:text-neutral-100 tracking-tight">
+      <p className="font-bold text-neutral-900 dark:text-neutral-100 transition duration-500 ease-in-out tracking-tight">
         {post.metadata.title}
       </p>
     </div>

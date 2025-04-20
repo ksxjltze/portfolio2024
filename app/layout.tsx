@@ -72,7 +72,7 @@ export default function RootLayout({
       </head>
       <body className="antialiased max-w-xl mx-4 mt-8 lg:mx-auto text-foreground dark:text-white bg-background">
         <main className="flex-auto min-w-0 mt-6 flex flex-col px-2 md:px-0">
-          <ThemeProvider>
+          <ThemeProvider initialTheme={'light'}>
             <Navbar />
             {children}
             <Footer />
