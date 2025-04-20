@@ -1,0 +1,102 @@
+---
+title: 'Unit Testing in Unity'
+publishedAt: '2025-04-19'
+updatedAt: '2025-04-20'
+summary: 'How to use Unity's testing framework'
+tags: unit-testing, unity, c#
+---
+
+Did you know that Unity has a built-in test runner and framework?
+
+I didn't, until recently when I started to get lazy to manually test my newly implemented code and wanted to find a way to write my own automated tests in Unity.
+
+My first thought was to simply write MonoBehaviour scripts that acted like unit tests, but a bit of research revealed that Unity actually has its own testing framework.
+
+# Unity Test Framework
+Unity's Test Framework (UTF) is built on top of the NUnit framework, a popular, open-source unit testing framework for .NET and Mono.
+
+It allows developers to test their code in both Edit Mode and Play Mode, while also providing a standard for Unity users to write tests.
+
+It's available as a Unity package, so it can be conveniently installed through the package manager.
+
+The main difference between using plain NUnit and the UTF, is that Unity allows you to run tests as coroutines, allowing developers to test code over multiple frames.
+
+## What I used UTF for
+Like most unit tests are intended for, I used the UTF to verify that my code was behaving as expected. 
+
+Generally, I used it as an interim replacement for manual testing (a.k.a playtesting), because I dislike the tedium that comes with it but also because it is a lot faster, saving me time, effort, and sanity.
+
+However, playtesting probably can't be ignored entirely, especially since players can do all sorts of unexpected things that are difficult to replicate in a unit test.
+
+## UTF Documentation
+- [Getting Started Guide](https://unity.com/how-to/automated-tests-unity-test-framework)
+- [UTF Manual](https://docs.unity3d.com/Packages/com.unity.test-framework@1.1/manual/manual.html)
+
+## Test Runner
+The Unity Test Runner is a tool that tests your code.
+
+It can be found under Window -> General -> Test Runner from the menu bar.
+
+![Test Runner](/images/unit-testing-in-unity/test-runner.png)
+
+![Tests](/images/unit-testing-in-unity/tests.png)
+
+## Assembly Definitions
+Before you can get started with unit testing using UTF, you need to define an assembly for it and add references to the other necessary assemblies.
+
+This can be done using the right-click context menu in the Asset Explorer, under Create -> Assembly Definition.
+
+![Create Assembly](/images/unit-testing-in-unity/create-assembly.png)
+
+Generally, an assembly definition also has to be created for the code that is intended to be tested. 
+
+This is done in the same way as creating the test assembly, through the asset explorer context menu, but in the folder that contains the code intended for testing.
+
+![Other Assembly](/images/unit-testing-in-unity/other-assembly.png)
+
+Additional assembly definitions may also need to be created for the code that is referenced by the code to be tested.
+
+### Advantage of Assembly Definitions
+One major benefit of organizing code/scripts into assemblies is the speeding up of compilation times. 
+
+During module reloading or script compilation, Unity can skip entire assemblies of code that has not been modified, instead of reloading all scripts. 
+
+This potentially leads to massive time-savings in development as less time is spent waiting around for scripts to be compiled.
+
+Read more about assembly definitions [here](https://docs.unity3d.com/6000.0/Documentation/Manual/assembly-definition-files.html).
+
+### Example Assembly Definition for Unit Testing
+![Assembly Definition](/images/unit-testing-in-unity/assembly-definition.png)
+
+## Test Attributes
+
+The UTF exposes two C# attributes to declare unit tests, the __Test__ attribute and the __UnityTest__ attribute.
+
+The Test attribute simply declares a class method to be a Unit Test, which will then appear in the Test Runner for execution.
+
+The UnityTest attribute is similar, except that it also allows tests to skip a frame or give certain commands to the Unity Editor.
+
+Read more about it [here](https://docs.unity3d.com/Packages/com.unity.test-framework@1.1/manual/reference-attribute-unitytest.html).
+
+# Arrange, Act, Assert
+The Arrange-Act-Assert pattern is a testing pattern used to structure test cases in a fixed order.
+
+Like its name suggests, the Arrange-Act-Assert pattern splits a test into three phases: Arrange, Act and Assert.
+
+### Arrange
+Sets up the test case, the inputs and targets of the test should be declared here.
+
+For a Unity test case, this is usually loading a specific scene, finding game objects, getting components, etc.
+
+### Act
+This phase is where the main objective of the test is executed. 
+
+For example, calling functions on a MonoBehaviour, doing damage to an enemy, checking for collisions, etc.
+
+### Assert
+Expected outcomes are validated here, determining if the test should pass or fail.
+
+Such as checking that an enemy has a specific health value, or that a certain GameObject is in the correct state, or that a Canvas UI object displays the expected text, etc.
+
+## Further Reading
+Read more about the pattern in general [here](https://automationpanda.com/2020/07/07/arrange-act-assert-a-pattern-for-writing-good-tests/).

@@ -18,11 +18,11 @@ export const useTheme = () => useContext(ThemeContext);
 
 interface ThemeProviderProps {
   children: React.ReactNode;
+  initialTheme: Theme
 }
 
-export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  // Initialize with 'light' but will update on first render
-  const [theme, setTheme] = useState<Theme>('light');
+export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children, initialTheme = 'light'}) => {
+  const [theme, setTheme] = useState<Theme>(initialTheme);
 
   useEffect(() => {
     // Check for saved theme in localStorage
