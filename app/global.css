@@ -37,6 +37,16 @@
   --sidebar-ring: oklch(0.708 0 0);
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
+
+  --sh-class: #354150;
+  --sh-identifier: #354150;
+  --sh-sign: #354150;
+  --sh-string: #354150;
+  --sh-keyword: #354150;
+  --sh-comment: #354150;
+  --sh-jsxliterals: #354150;
+  --sh-property: #354150;
+  --sh-entity: #354150;
 }
 
 .dark {
@@ -72,6 +82,16 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(0.269 0 0);
   --sidebar-ring: oklch(0.439 0 0);
+  
+  --sh-class: #5289ff;
+  --sh-identifier: #5289ff;
+  --sh-sign: #5289ff;
+  --sh-string: #5289ff;
+  --sh-keyword: #5289ff;
+  --sh-comment: #5289ff;
+  --sh-jsxliterals: #5289ff;
+  --sh-property: #5289ff;
+  --sh-entity: #5289ff;
 }
 
 @theme inline {
@@ -118,31 +138,7 @@
   color: #fefefe;
 }
 
-:root {
-  --sh-class: #354150;
-  --sh-identifier: #354150;
-  --sh-sign: #354150;
-  --sh-string: #354150;
-  --sh-keyword: #354150;
-  --sh-comment: #354150;
-  --sh-jsxliterals: #354150;
-  --sh-property: #354150;
-  --sh-entity: #354150;
-}
-
 @media (prefers-color-scheme: dark) {
-  :root {
-    --sh-class: white;
-    --sh-identifier: white;
-    --sh-sign: white;
-    --sh-string: white;
-    --sh-keyword: white;
-    --sh-comment: white;
-    --sh-jsxliterals: white;
-    --sh-property: white;
-    --sh-entity: white;
-  }
-
   :root:not(.light) {
     --background: oklch(0.145 0 0);
     --foreground: oklch(0.985 0 0);

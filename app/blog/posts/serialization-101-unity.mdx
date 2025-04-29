@@ -4,13 +4,14 @@ publishedAt: '2025-04-29'
 summary: 'Learn how to save your Unity game data.'
 ---
 
-## Resources
+# Resources
 - [Persistent Data Path](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Application-persistentDataPath.html)
 - [JSON Utility](https://docs.unity3d.com/6000.1/Documentation/ScriptReference/JsonUtility.html)
 - [Text Compression using GZIP](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream?view=net-9.0)
 - [Dangers of BinaryFormatter](https://learn.microsoft.com/en-us/dotnet/standard/serialization/binaryformatter-security-guide#deserialization-vulnerabilities)
+- [When to use a struct](https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/choosing-between-class-and-struct)
 
-## What is Serialization?
+# What is Serialization?
 To put it simply, in game development terms, it's about taking your code, objects, and their state, then converting it into a format that can be saved and loaded again later. 
 
 However, it can go much further than just saving and loading from a file, serialized data may also be transmitted over a network, which is important if you want to make multiplayer games.
@@ -36,3 +37,119 @@ The ability to go into a game save file and directly read the file structure and
 
 ## How to make my save file smaller
 The answer is file compression. GZIP is a great way to achieve this.
+
+# Getting Started with Serialization
+Before you can save your game data, it has to first be serialized into a format that can be stored as a file.
+
+The way I typically like to approach this, is to create little abstractions on existing game classes, usually small pure data structs that only contain the necessary data to be saved.
+
+I then take the game state I wish to save, and write it into these structs, before serializing it into JSON using Unity's ever-so-convenient JSONUtility tool.
+
+For example, let's say we have a simple GameManager.cs script that tracks the state of your game, maybe its the current level name, the player's gold balance, enemies defeated, current power-ups, etc.
+
+```C#
+public class GameManager {
+    public string levelName;
+    public int goldBalance;
+    public int enemiesDefeated;
+    public List<PowerUp> powerUps;
+
+    //Other stuff
+    void NextLevel() {
+        //Some Implementation
+    }
+    ...
+}
+```
+
+First, let's create a struct to track this data, there are several reasons that I do this which I'll touch on later in this article.
+
+```C#
+[Serializable]
+public struct GameSaveData {
+    public string levelName;
+    public int goldBalance;
+    public int enemiesDefeated;
+    public PowerUp[] powerUps;
+}
+```
+
+The first thing you'll notice here is the `[Serializable]` attribute. This is used to tell .NET that we want to serialize this struct, which we'll need if we want to use the handy-dandy JSONUtility serialization API.
+
+You might also notice that the `List<PowerUp>` in our GameManager.cs has been replaced with a plain array instead.
+
+This is because Unity's JSONUtility doesn't like it, and cannot serialize Lists (or other collections for that matter).
+Read more about why that is over [here](https://discussions.unity.com/t/jsonutilities-tojson-with-list-string-not-working-as-expected/753352).
+
+We'll also need a way to convert our GameManager.cs state into this new struct that we've created, and vice versa.
+
+My favourite way to do this is to write a constructor, and then later on, an implicit conversion operator for deserialization.
+
+```C#
+[Serializable]
+public struct GameSaveData {
+    public string levelName;
+    public int goldBalance;
+    public int enemiesDefeated;
+    public PowerUp[] powerUps;
+
+    public GameSaveData(string levelName, int goldBalance, int enemiesDefeated, List<PowerUp> powerUps) {
+        this.levelName = levelName;
+        this.goldBalance = goldBalance;
+        this.enemiesDefeated = enemiesDefeated;
+        this.powerUps = powerUps.ToArray();
+    }
+}
+```
+
+## Uh oh
+You might run into some issues here if your PowerUp class contains references to other classes, or uses collections like Lists and Dictionaries.
+
+Also, unless the PowerUp class is marked with the `[Serializable]` attribute, JSONUtility will straight up ignore it. Additionally, all members to be serialized must be public, and not `readonly`.
+
+As usual, the way to tackle this is to abstract the necessary data into yet another struct or class, and then manually convert your PowerUp object state into the respective members, tedious, I know.
+
+It might be tempting to simply tack on the `[Serializable]` attribute onto the existing class, but as you may discover, this is not always feasible, and may lead to maintainability issues down the road.
+
+Here's where I plug the good old **[Separation of Concerns principle](https://nalexn.github.io/separation-of-concerns/)** to justify not being lazy with data organization.
+
+DIGRESSION OVER; For example, let's say that your PowerUp class looks like this:
+```C#
+public class PowerUp : MonoBehaviour {
+    public List<BingleBop> bingles;
+    private DingleDop dopdop;
+    public int x;
+
+    private static PowerUpManager manager;
+
+    void Start() {
+        //Do stuff
+    }
+}
+```
+
+Not pretty, and horribly written code, but that doesn't really matter for our little "experiment". In fact, it's a good example of how to serialize some spaghetti.
+
+//WIP
+
+## Why structs
+Structs in C# are value-types, which means that they are allocated on the stack (unless boxed), and are passed around to functions as copies, instead of as a reference to the original object.
+
+Making copies might sound bad at first, but it can actually be much faster since memory doesn't have to be allocated on the heap, which in turn means that the garbage collector won't have to deal with our structs.
+
+On the lower level of things, collections of structs may lead to better cache-locality in memory, which is good for the CPU moving data around and stuff, but that's way out of scope for this article.
+
+The stack-allocated nature of a struct makes it good for temporary operations, where the manipulated data is short-lived.
+
+Since all we really want to do is take some data and save it to a file (then load it later), this makes it perfect for our serialization purposes.
+
+Could you use a class instead? Sure, but there isn't really a good reason to unless your data happens to be relatively complex and has many references to other objects.
+
+See [here](https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/choosing-between-class-and-struct) for further guidelines on structs vs classes in C#, although note that it's not a hard rule that you have to follow. When in doubt, experiment and profile.
+
+There's also this new-ish thing called a [Record](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/record), which is also a reference type with built-in functionality for encapsulating data.
+
+ANYWAY;
+TLDR: structs go zoom, use less memory, are passed by copy, short-lived, and good for data. 
+
+Personally, at least that's how I justify why I like to use structs, although there's also probably some influence here from working with other things like Vulkan and Plain Old Java Objects (POJOs).
