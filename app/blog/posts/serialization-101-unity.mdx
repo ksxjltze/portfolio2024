@@ -1,0 +1,38 @@
+---
+title: 'Saving and Loading 101 in Unity'
+publishedAt: '2025-04-29'
+summary: 'Learn how to save your Unity game data.'
+---
+
+## Resources
+- [Persistent Data Path](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Application-persistentDataPath.html)
+- [JSON Utility](https://docs.unity3d.com/6000.1/Documentation/ScriptReference/JsonUtility.html)
+- [Text Compression using GZIP](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream?view=net-9.0)
+- [Dangers of BinaryFormatter](https://learn.microsoft.com/en-us/dotnet/standard/serialization/binaryformatter-security-guide#deserialization-vulnerabilities)
+
+## What is Serialization?
+To put it simply, in game development terms, it's about taking your code, objects, and their state, then converting it into a format that can be saved and loaded again later. 
+
+However, it can go much further than just saving and loading from a file, serialized data may also be transmitted over a network, which is important if you want to make multiplayer games.
+
+This post will focus solely on saving and loading, maybe I'll write a bit about networking next time.
+
+## Why not binary?
+The argument is that binary is much faster, smaller and overall cheaper. This much is true, but binary serialization is not without its issues.
+
+### Safety
+For starters, there's the safety concern regarding deserialization vulnerabilities, particularly in .NET. 
+
+Without proper data validation, binary deserialization can open your game to potential malicious actors tampering with the game's save file and using it as an avenue of attack to install malware, DDOS, etc.
+
+Certainly not something the average game developer would like to deal with.
+
+In a nutshell, using .NET's very convenient BinaryFormatter.Deserialize method is as good as treating the payload as a standalone executable and running it.
+
+### Readability
+The other problem is readability, which can be a problem for rapid iterative development, as well as affecting how easy it is to potentitally create mods for your game, if you plan to support it.
+
+The ability to go into a game save file and directly read the file structure and contents with the human eye can not be understated. It is a crucial debuggging "tool", especially as a game grows more complex.
+
+## How to make my save file smaller
+The answer is file compression. GZIP is a great way to achieve this.
