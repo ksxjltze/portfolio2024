@@ -17,9 +17,13 @@ export default function BlogSortingOptions() {
     const { replace } = useRouter();
 
     let [sortByUpdated, setSortByUpdated] = useState(true);
-    let [sortOldestFirst, setsortOldestFirst] = useState(false);
+    let [sortOldestFirst, setSortOldestFirst] = useState(false);
+    let [doSort, setDoSort] = useState(false);
 
     useEffect(() => {
+        if (!doSort)
+            return;
+
         if (searchParams?.size == 0) {
             const params = new URLSearchParams(Array.from(searchParams.entries()));
             params.set("sortByUpdated", sortByUpdated.toString());
@@ -29,6 +33,8 @@ export default function BlogSortingOptions() {
     }, [searchParams]);
 
     function toggleSortByUpdated() {
+        setDoSort(true);
+
         if (searchParams) {
             const params = new URLSearchParams(Array.from(searchParams.entries()));
             sortByUpdated = !(searchParams.get("sortByUpdated")?.toLowerCase() === 'true');
@@ -39,10 +45,12 @@ export default function BlogSortingOptions() {
     }
 
     function togglesortOldestFirst() {
+        setDoSort(true);
+        
         if (searchParams) {
             const params = new URLSearchParams(Array.from(searchParams.entries()));
             sortOldestFirst = !(searchParams.get("sortOldestFirst")?.toLowerCase() === 'true');
-            setsortOldestFirst(sortOldestFirst);
+            setSortOldestFirst(sortOldestFirst);
             params.set("sortOldestFirst", sortOldestFirst.toString());
             replace(`${pathname}?${params.toString()}`);
         }
