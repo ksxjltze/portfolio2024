@@ -37,6 +37,16 @@
   --sidebar-ring: oklch(0.708 0 0);
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
+
+  --sh-class: #354150;
+  --sh-identifier: #354150;
+  --sh-sign: #354150;
+  --sh-string: #354150;
+  --sh-keyword: #354150;
+  --sh-comment: #354150;
+  --sh-jsxliterals: #354150;
+  --sh-property: #354150;
+  --sh-entity: #354150;
 }
 
 .dark {
@@ -72,6 +82,16 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(0.269 0 0);
   --sidebar-ring: oklch(0.439 0 0);
+  
+  --sh-class: #ffe15d;
+  --sh-identifier: #e7e7e7;
+  --sh-sign: #e7e7e7;
+  --sh-string: #e7e7e7;
+  --sh-keyword: #e7e7e7;
+  --sh-comment: #39ff43;
+  --sh-jsxliterals: #e7e7e7;
+  --sh-property: #5db0ff;
+  --sh-entity: #ffe15d;
 }
 
 @theme inline {
@@ -118,29 +138,40 @@
   color: #fefefe;
 }
 
-:root {
-  --sh-class: #354150;
-  --sh-identifier: #354150;
-  --sh-sign: #354150;
-  --sh-string: #354150;
-  --sh-keyword: #354150;
-  --sh-comment: #354150;
-  --sh-jsxliterals: #354150;
-  --sh-property: #354150;
-  --sh-entity: #354150;
-}
-
 @media (prefers-color-scheme: dark) {
-  :root {
-    --sh-class: white;
-    --sh-identifier: white;
-    --sh-sign: white;
-    --sh-string: white;
-    --sh-keyword: white;
-    --sh-comment: white;
-    --sh-jsxliterals: white;
-    --sh-property: white;
-    --sh-entity: white;
+  :root:not(.light) {
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.145 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.145 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.985 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.396 0.141 25.723);
+    --destructive-foreground: oklch(0.637 0.237 25.331);
+    --border: oklch(0.269 0 0);
+    --input: oklch(0.269 0 0);
+    --ring: oklch(0.439 0 0);
+    --chart-1: oklch(0.488 0.243 264.376);
+    --chart-2: oklch(0.696 0.17 162.48);
+    --chart-3: oklch(0.769 0.188 70.08);
+    --chart-4: oklch(0.627 0.265 303.9);
+    --chart-5: oklch(0.645 0.246 16.439);
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.488 0.243 264.376);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(0.269 0 0);
+    --sidebar-ring: oklch(0.439 0 0);
   }
 
   :root:not(.light) {
@@ -198,7 +229,7 @@ html {
 }
 
 .prose a {
-  @apply underline transition-all decoration-neutral-400 dark:decoration-neutral-600 underline-offset-2 decoration-[0.1em];
+  @apply underline transition-all decoration-neutral-400 dark:decoration-neutral-600 underline-offset-2 decoration-[0.1em] text-[#0000ee] dark:text-blue-600;
 }
 
 .prose .anchor:after {
@@ -239,7 +270,7 @@ html {
 }
 
 .prose h1 {
-  @apply text-4xl font-medium tracking-tight mt-6 mb-2;
+  @apply text-2xl font-medium tracking-tight mt-6 mb-2;
 }
 
 .prose h2 {
@@ -247,11 +278,11 @@ html {
 }
 
 .prose h3 {
-  @apply text-xl font-medium tracking-tight mt-6 mb-2;
+  @apply text-lg font-medium tracking-tight mt-6 mb-2;
 }
 
 .prose h4 {
-  @apply text-lg font-medium tracking-tight mt-6 mb-2;
+  @apply text-lg font-semibold tracking-tight mt-6 mb-2;
 }
 
 .prose strong {

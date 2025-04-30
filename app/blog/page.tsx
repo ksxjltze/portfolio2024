@@ -16,6 +16,8 @@ export default async function Page(props) {
           <h1 className='text-2xl mb-2 font-bold'>Articles</h1>
           <BlogSortingOptions />
         </div>
+        <p>I have a habit of writing unfinished articles.</p>
+        <br/>
         {DisplayBlogLinks(sortByUpdated, sortOldestFirst)}
       </section>
     </div>
