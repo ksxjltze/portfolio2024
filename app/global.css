@@ -83,15 +83,15 @@
   --sidebar-border: oklch(0.269 0 0);
   --sidebar-ring: oklch(0.439 0 0);
   
-  --sh-class: #5289ff;
-  --sh-identifier: #5289ff;
-  --sh-sign: #5289ff;
-  --sh-string: #5289ff;
-  --sh-keyword: #5289ff;
-  --sh-comment: #5289ff;
-  --sh-jsxliterals: #5289ff;
-  --sh-property: #5289ff;
-  --sh-entity: #5289ff;
+  --sh-class: #ffe15d;
+  --sh-identifier: #e7e7e7;
+  --sh-sign: #e7e7e7;
+  --sh-string: #e7e7e7;
+  --sh-keyword: #e7e7e7;
+  --sh-comment: #39ff43;
+  --sh-jsxliterals: #e7e7e7;
+  --sh-property: #5db0ff;
+  --sh-entity: #ffe15d;
 }
 
 @theme inline {
@@ -194,7 +194,7 @@ html {
 }
 
 .prose a {
-  @apply underline transition-all decoration-neutral-400 dark:decoration-neutral-600 underline-offset-2 decoration-[0.1em];
+  @apply underline transition-all decoration-neutral-400 dark:decoration-neutral-600 underline-offset-2 decoration-[0.1em] text-[#0000ee] dark:text-blue-600;
 }
 
 .prose .anchor:after {

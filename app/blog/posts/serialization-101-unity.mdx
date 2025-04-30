@@ -1,6 +1,6 @@
 ---
-title: 'Saving and Loading 101 in Unity'
-publishedAt: '2025-04-29'
+title: 'Saving and Loading in Unity: Serialization 101'
+publishedAt: '2025-04-30'
 summary: 'Learn how to save your Unity game data.'
 ---
 
@@ -16,43 +16,23 @@ To put it simply, in game development terms, it's about taking your code, object
 
 However, it can go much further than just saving and loading from a file, serialized data may also be transmitted over a network, which is important if you want to make multiplayer games.
 
-This post will focus solely on saving and loading, maybe I'll write a bit about networking next time.
-
-## Why not binary?
-The argument is that binary is much faster, smaller and overall cheaper. This much is true, but binary serialization is not without its issues.
-
-### Safety
-For starters, there's the safety concern regarding deserialization vulnerabilities, particularly in .NET. 
-
-Without proper data validation, binary deserialization can open your game to potential malicious actors tampering with the game's save file and using it as an avenue of attack to install malware, DDOS, etc.
-
-Certainly not something the average game developer would like to deal with.
-
-In a nutshell, using .NET's very convenient BinaryFormatter.Deserialize method is as good as treating the payload as a standalone executable and running it.
-
-### Readability
-The other problem is readability, which can be a problem for rapid iterative development, as well as affecting how easy it is to potentitally create mods for your game, if you plan to support it.
-
-The ability to go into a game save file and directly read the file structure and contents with the human eye can not be understated. It is a crucial debuggging "tool", especially as a game grows more complex.
-
-## How to make my save file smaller
-The answer is file compression. GZIP is a great way to achieve this.
+This post will focus solely on saving and loading using JSON, maybe I'll write a bit about networking next time.
 
 # Getting Started with Serialization
 Before you can save your game data, it has to first be serialized into a format that can be stored as a file.
 
 The way I typically like to approach this, is to create little abstractions on existing game classes, usually small pure data structs that only contain the necessary data to be saved.
 
-I then take the game state I wish to save, and write it into these structs, before serializing it into JSON using Unity's ever-so-convenient JSONUtility tool.
+I then take the game state I wish to save, and write it into these structs, before serializing it into JSON using Unity's ever-so-convenient `JSONUtility` tool.
 
 For example, let's say we have a simple GameManager.cs script that tracks the state of your game, maybe its the current level name, the player's gold balance, enemies defeated, current power-ups, etc.
 
 ```C#
 public class GameManager {
-    public string levelName;
-    public int goldBalance;
-    public int enemiesDefeated;
-    public List<PowerUp> powerUps;
+    public static string levelName;
+    public static int goldBalance;
+    public static int enemiesDefeated;
+    public static List<PowerUp> powerUps;
 
     //Other stuff
     void NextLevel() {
@@ -78,12 +58,12 @@ The first thing you'll notice here is the `[Serializable]` attribute. This is us
 
 You might also notice that the `List<PowerUp>` in our GameManager.cs has been replaced with a plain array instead.
 
-This is because Unity's JSONUtility doesn't like it, and cannot serialize Lists (or other collections for that matter).
+This is because Unity's `JSONUtility` doesn't like it, and cannot serialize Lists (or other collections for that matter).
 Read more about why that is over [here](https://discussions.unity.com/t/jsonutilities-tojson-with-list-string-not-working-as-expected/753352).
 
 We'll also need a way to convert our GameManager.cs state into this new struct that we've created, and vice versa.
 
-My favourite way to do this is to write a constructor, and then later on, an implicit conversion operator for deserialization.
+My favourite way to do this is to write a constructor, and then later on, maybe an implicit conversion operator for deserialization, because its cool (won't do that for this example though).
 
 ```C#
 [Serializable]
@@ -103,9 +83,9 @@ public struct GameSaveData {
 ```
 
 ## Uh oh
-You might run into some issues here if your PowerUp class contains references to other classes, or uses collections like Lists and Dictionaries.
+You might run into some issues here if your `PowerUp` class contains references to other classes, or uses collections like Lists and Dictionaries.
 
-Also, unless the PowerUp class is marked with the `[Serializable]` attribute, JSONUtility will straight up ignore it. Additionally, all members to be serialized must be public, and not `readonly`.
+Also, unless the `PowerUp` class is marked with the `[Serializable]` attribute, `JSONUtility` will straight up ignore it. Additionally, all members to be serialized must be public, and not `readonly`.
 
 As usual, the way to tackle this is to abstract the necessary data into yet another struct or class, and then manually convert your PowerUp object state into the respective members, tedious, I know.
 
@@ -113,14 +93,25 @@ It might be tempting to simply tack on the `[Serializable]` attribute onto the e
 
 Here's where I plug the good old **[Separation of Concerns principle](https://nalexn.github.io/separation-of-concerns/)** to justify not being lazy with data organization.
 
-DIGRESSION OVER; For example, let's say that your PowerUp class looks like this:
+DIGRESSION OVER; For example, let's say that your `PowerUp` class looks like this:
 ```C#
-public class PowerUp : MonoBehaviour {
+public class PowerUp : MonoBehaviour 
+{
     public List<BingleBop> bingles;
-    private DingleDop dopdop;
+    private float value;
     public int x;
+    private string id;
 
     private static PowerUpManager manager;
+
+    public string ID {
+        get => id;
+        private set;
+    }
+
+    public float GetValue() {
+        return value;
+    }
 
     void Start() {
         //Do stuff
@@ -128,9 +119,154 @@ public class PowerUp : MonoBehaviour {
 }
 ```
 
-Not pretty, and horribly written code, but that doesn't really matter for our little "experiment". In fact, it's a good example of how to serialize some spaghetti.
+And the `BingleBop` class looks something simple like this:
+```C#
+public class BingleBop
+{
+    public string dopdop;
+    ...
+}
+```
 
-//WIP
+Not pretty, and horribly written, but that doesn't really matter for our little "experiment". In fact, it's a good example to use for showing how to serialize some spaghetti.
+
+If we were to try and simply add `[Serializable]` to this class now, you would notice that only x would be serialized because its the only field that `JSONUtility` can accept.
+
+Let's create the data struct for this class, ignoring the static manager field for now:
+```C#
+public struct PowerUpData {
+    public string[] bingles;
+    public float value;
+    public int x;
+    public string id;
+
+    public PowerUpData(PowerUp powerUp) {
+        this.bingles = powerUp.bingles.ConvertAll((bingle) => bingle.dopdop).ToArray();
+        this.value = powerUp.GetValue();
+        this.x = powerUp.x;
+        this.id = powerUp.ID;
+    }
+}
+```
+
+We'll need to update our `GameSaveData` struct to account for the new data struct:
+```C#
+[Serializable]
+public struct GameSaveData {
+    public string levelName;
+    public int goldBalance;
+    public int enemiesDefeated;
+    public PowerUpData[] powerUps;
+
+    public GameSaveData(string levelName, int goldBalance, int enemiesDefeated, List<PowerUp> powerUps) {
+        this.levelName = levelName;
+        this.goldBalance = goldBalance;
+        this.enemiesDefeated = enemiesDefeated;
+        this.powerUps = powerUps.ConvertAll((powerUp) => new PowerUpData(powerUp)).ToArray();
+    }
+}
+```
+
+Notice that I like to abuse `ConvertAll()`, it's just so convenient.
+
+Finally, let's assume that we have a script somewhere that brings it all together and saves our painstakingly extracted data to a file, we'll make it a singleton for convenience:
+```C#
+public class SaveManager : MonoBehaviour {
+    public static SaveManager instance;
+    private static string savePath = Application.persistentDataPath + "/" + "saveFile.sav"
+
+    public void Awake() {
+        if (instance == null)
+            instance = this;
+        else
+            Destroy(gameObject);
+    }
+
+    public void Save() {
+        GameSaveData saveData = new(GameManager.level, GameManager.goldBalance, GameManager.enemiesDefeated, GameManager.powerUps);
+        string json = JSONUtility.ToJson(saveData);
+        File.WriteAllText(savePath, json);
+    }
+
+    public void Load() {
+        string json = File.ReadAllText(path);
+        GameSaveData data = JSONUtility.FromJson<GameSaveData>(json);
+        
+        //Imagine that this code has been abstracted into a function elsewhere..
+        GameManager.level = saveData.level;
+        GameManager.goldBalance = saveData.goldBalance;
+        GameManager.enemiesDefeated = saveData.enemiesDefeated;
+
+        GameManager.powerUps = saveData.powerUps.ToList().ConvertAll((powerUpData) => {
+            return PowerUp.manager.CreatePowerUp(powerUpData); //assume that this function exists and simply Instantiates a prefab.
+        });
+    }
+}
+```
+
+**Side Note: None of this code has actually been tested, it's also simplified to a large degree, please use (as-is) at your own risk.**
+
+Saving and loading are often mirror images of each other, unfortunately for us, this also means that we usually have to write similar code twice, in opposite order.
+
+You may notice that we did not directly create a new instance of `PowerUp` using new(), this is because our `PowerUp` happens to be a MonoBehaviour, and we cannot directly create instances of it ourselves.
+
+To work around this, the typical solution is to instantiate it as a prefab, then override its fields manually.
+
+There's also this handy JSONUtility method called [`JSONUtility.FromJsonOverwrite`](https://docs.unity3d.com/ScriptReference/JsonUtility.FromJsonOverwrite.html), which overrides data in an object instead of creating a new one.
+
+ANYWAY; Here's an example helper manager class to do just that:
+```C#
+public class PowerUpManager : MonoBehaviour {
+    public GameObject powerUpPrefab;
+
+    public PowerUp CreatePowerUp(PowerUpData data) {
+        PowerUp instance = Instantiate(powerUpPrefab).GetComponent<PowerUp>();
+        instance.LoadFromData(data);
+
+        return instance;
+    }
+}
+```
+
+Also assuming that the `PowerUp` class has a handy helper for overriding:
+
+```C#
+public class PowerUp : MonoBehaviour 
+{
+    public List<BingleBop> bingles;
+    private float value;
+    public int x;
+    private string id;
+    
+    ...
+
+    public void LoadFromData(PowerUpData data) {
+        this.bingles = data.bingles.ToList().ConvertAll((bingle) => {
+            var bingleBop = new BingleBop();
+            bingleBop.dopdop = bingle;
+
+            return bingleBop;
+        });
+
+        this.value = data.value;
+        this.x = data.x;
+        this.id = data.id;
+    }
+}
+```
+
+That's about it.
+
+### **TLDR**: An extremely simplified Save/Load process would be: 
+1. Extract only the necessary data you need into structs.
+2. Slap on the `[Serializable]` attribute.
+3. Arrange your data and feed it into `JSONUtility.ToJson()`.
+4. **Write** the outputted json string to a file using `File.WriteAllText()`
+5. Then **Read** it later using `File.ReadAllText()`.
+6. Parse the read string using `JSONUtility.FromJson` or `JSONUtility.FromJsonOverwrite`, instantiating prefabs where necessary.
+7. Profit.
+
+# Further Reading
 
 ## Why structs
 Structs in C# are value-types, which means that they are allocated on the stack (unless boxed), and are passed around to functions as copies, instead of as a reference to the original object.
@@ -150,6 +286,30 @@ See [here](https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/c
 There's also this new-ish thing called a [Record](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/record), which is also a reference type with built-in functionality for encapsulating data.
 
 ANYWAY;
-TLDR: structs go zoom, use less memory, are passed by copy, short-lived, and good for data. 
+TLDR: structs go zoom, use less memory, are passed by copy, short-lived, and good for data, especially if small. 
 
 Personally, at least that's how I justify why I like to use structs, although there's also probably some influence here from working with other things like Vulkan and Plain Old Java Objects (POJOs).
+
+## Why not use Binary?
+The argument is that using a binary format is much faster, smaller and overall cheaper. This much is true, but binary serialization is not without its issues.
+
+### Safety
+For starters, there's the safety concern regarding deserialization vulnerabilities, particularly in .NET. 
+
+Without proper data validation, binary deserialization can open your game to potential malicious actors tampering with the game's save file and using it as an avenue of attack to install malware, DDOS, etc.
+
+Certainly not something the average game developer would like to deal with.
+
+In a nutshell, using .NET's very convenient `BinaryFormatter.Deserialize` method is as good as treating the payload as a standalone executable and running it.
+
+### Readability
+The other problem is readability, which can be a problem for rapid iterative development, as well as affecting how easy it is to potentitally create mods for your game, if you plan to support it.
+
+The ability to go into a game save file and directly read the file structure and contents with the human eye can not be understated. It is a crucial debuggging "tool", especially as a game grows more complex.
+
+## Alternatives to binary format
+JSON is the gold standard these days for all things serialization. 
+
+Here, have an [article](https://medium.com/@fulton_shaun/json-in-unity-part-1-what-is-json-why-should-game-developers-care-30834c44a07e).
+
+There's also BSON, Protocol Buffers, XML, YAML, heck, even CSV works, but JSON is just fine for most game development purposes.
