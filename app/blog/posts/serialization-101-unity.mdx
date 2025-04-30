@@ -4,13 +4,6 @@ publishedAt: '2025-04-30'
 summary: 'Learn how to save your Unity game data.'
 ---
 
-# Resources
-- [Persistent Data Path](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Application-persistentDataPath.html)
-- [JSON Utility](https://docs.unity3d.com/6000.1/Documentation/ScriptReference/JsonUtility.html)
-- [Text Compression using GZIP](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream?view=net-9.0)
-- [Dangers of BinaryFormatter](https://learn.microsoft.com/en-us/dotnet/standard/serialization/binaryformatter-security-guide#deserialization-vulnerabilities)
-- [When to use a struct](https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/choosing-between-class-and-struct)
-
 # What is Serialization?
 To put it simply, in game development terms, it's about taking your code, objects, and their state, then converting it into a format that can be saved and loaded again later. 
 
@@ -259,14 +252,27 @@ That's about it.
 
 ### **TLDR**: An extremely simplified Save/Load process would be: 
 1. Extract only the necessary data you need into structs.
-2. Slap on the `[Serializable]` attribute.
-3. Arrange your data and feed it into `JSONUtility.ToJson()`.
+2. Slap on the `[Serializable]` attribute onto said structs.
+3. Arrange your all data into the structs and feed them to `JSONUtility.ToJson()`.
 4. **Write** the outputted json string to a file using `File.WriteAllText()`
 5. Then **Read** it later using `File.ReadAllText()`.
 6. Parse the read string using `JSONUtility.FromJson` or `JSONUtility.FromJsonOverwrite`, instantiating prefabs where necessary.
 7. Profit.
 
+
+## FAQ (I made these up)
+- Can I save my data across multiple structs instead of one mega-struct? (i.e. GameSaveData)
+
+  Yes, but its far more convenient to just use one mega-struct when using JSONUtility, mainly because structuring your own JSON can be quite a hassle. Otherwise, you'd have to split it across multiple files.
+
+
 # Further Reading
+## Resources
+- [Persistent Data Path](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Application-persistentDataPath.html)
+- [JSON Utility](https://docs.unity3d.com/6000.1/Documentation/ScriptReference/JsonUtility.html)
+- [Text Compression using GZIP](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream?view=net-9.0)
+- [Dangers of BinaryFormatter](https://learn.microsoft.com/en-us/dotnet/standard/serialization/binaryformatter-security-guide#deserialization-vulnerabilities)
+- [When to use a struct](https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/choosing-between-class-and-struct)
 
 ## Why structs
 Structs in C# are value-types, which means that they are allocated on the stack (unless boxed), and are passed around to functions as copies, instead of as a reference to the original object.
@@ -313,3 +319,162 @@ JSON is the gold standard these days for all things serialization.
 Here, have an [article](https://medium.com/@fulton_shaun/json-in-unity-part-1-what-is-json-why-should-game-developers-care-30834c44a07e).
 
 There's also BSON, Protocol Buffers, XML, YAML, heck, even CSV works, but JSON is just fine for most game development purposes.
+
+## Using Reflection to query inherited classes
+Here's a handy trick, let's say you have a base class called Enemy, and a bunch of classes that inherit from it.
+
+```C#
+public class Enemy {
+    public string identifier;
+    public int attackDamage;
+    public virtual void Attack();
+
+    //We'll use this later
+    public Enemy Clone() {
+        Enemy enemy = (Enemy)this.MemberwiseClone();
+        return enemy;
+    }
+}
+```
+
+
+```C#
+public class Goblin : Enemy {
+    public override string identifier = "goblin";
+    public override int attackDamage = 20; 
+    public override void Attack() {
+        //Do something
+    }
+}
+```
+
+```C#
+public class Kobold : Enemy {
+    public override string identifier = "kobold";
+        public override int attackDamage = 30;
+    public override void Attack() {
+        //Do something
+    }
+}
+```
+
+We can have a game data layout that looks like this:
+```C#
+[Serializable]
+public struct GameSaveData {
+    public EnemyData currentEnemy;
+}
+```
+
+```C#
+[Serializable]
+public struct EnemyData {
+    public string identifier;
+    public int attackDamage;
+}
+```
+
+Serializing is as usual, we'll use `JSONUtility.ToJson(new GameSaveData(...))` and write the outputted JSON string to a file.
+
+Deserialization is where it can get tricky, how can we decide at runtime which inherited class to instantiate? Either way, we're going to need some kind of unique identifier to allow our code to decide.
+
+Here are two methods that I just came up with:
+
+1. We can add an enum to the base class, like a sort of `EnemyType` and serialize that, then run it through a switch case during instantiation. 
+    This is arguably the most straightforward method and is one that works very reliably.
+
+2. We can parse some other kind unique identifier, like the enemy's name or type name. Like the enum method, we can technically just use a switch case, but a cooler method that I like to use is to have a static lookup table, using reflection to enumerate the inherited classes into a Dictionary. 
+
+Overengineering can be pretty fun, in moderation.
+
+```C#
+public static class EnemyTable {
+    static EnemyTable() {
+        Dictionary<string, Enemy> enemies = new();
+        foreach (var enemy in ReflectiveEnumerator.GetEnumerableOfType<Enemy>())
+        {
+            enemies.Add(enemy.identifier, enemy);
+        }
+        enemyLookup = new(enemies);
+    }
+
+    private static ReadOnlyDictionary<string, Enemy> enemyLookup;
+
+    public static GetEnemy(string identifier) {
+        if (!enemyLookup.containsKey(identifier))
+            return new Enemy();
+            
+        return enemyLookup[identifier].Clone();
+    }
+}
+```
+
+The reflection enumeration helper can be yoinked from this ancient [Stack Overflow thread](https://stackoverflow.com/questions/5411694/get-all-inherited-classes-of-an-abstract-class).
+
+Here it is slightly modified:
+```C#
+public static class ReflectiveEnumerator
+{
+    static ReflectiveEnumerator() { }
+
+    public static IEnumerable<T> GetEnumerableOfType<T>(params object[] constructorArgs) where T : class
+    {
+        List<T> objects = new List<T>();
+
+        foreach (Type type in
+            Assembly.GetAssembly(typeof(T)).GetTypes()
+            .Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(T))))
+        {
+            objects.Add((T)Activator.CreateInstance(type, constructorArgs));
+        }
+
+        return objects;
+    }
+}
+```
+
+With the lookup table in place, we can now update our `EnemyData` struct to make use of this lookup table for conversion:
+```C#
+[Serializable]
+public struct EnemyData {
+    public string identifier;
+    public int attackDamage;
+
+    //I find these fun to use
+    public static implicit operator Enemy(EnemyData enemyData) {
+        Enemy enemy = EnemyTable.GetEnemy(enemyData.identifier);
+        enemy.attackDamage = enemyData.attackDamage;
+
+        return enemy;
+    }
+}
+```
+
+Finally, we can simply do something like this:
+```C#
+public class SaveManager {
+    ...
+    public void Load() {
+        string json = File.ReadAllText(path);
+        GameSaveData data = JSONUtility.FromJson<GameSaveData>(json);
+        
+        GameManager.currentEnemy = data.currentEnemy;
+    }
+}
+```
+
+Ain't that cool.
+
+## But Why?
+
+Why not. 
+
+I justify doing fancy things like this by arguing that it lets me be lazy, while also allowing me to enjoy the process of experimenting and exploring engineering possibilities using language features.
+
+The one direct advantage of doing this instead of using a enum switch case is that I no longer have to extend the enum, and maintain said switch case. Poggers.
+
+Otherwise, the downside is that it's not as clear-cut what the code is doing, since the overriding/overloading decisions are done at runtime instead of being laid out explicitly in code. 
+
+This could potentially lead to some nasty bugs to debug down the line, especially with more complex inherited classes, and incomplete classes, it's also arguably much slower.
+
+It is however, fun; and sometimes, a little fun is all you need to keep you going just a bit further.
