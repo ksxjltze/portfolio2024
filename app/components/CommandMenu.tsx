@@ -17,9 +17,7 @@ import {
     CommandItem,
     CommandList,
     CommandSeparator,
-    CommandShortcut,
 } from "@/components/ui/command"
-import { redirect } from "next/navigation";
 
 export function CommandMenu() {
     const [open, setOpen] = React.useState(false);

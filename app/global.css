@@ -306,3 +306,7 @@ table {
     @apply bg-background text-foreground;
   }
 }
+
+body[data-scroll-locked] > main {
+  overflow: hidden;
+}
