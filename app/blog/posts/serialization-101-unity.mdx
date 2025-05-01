@@ -1,6 +1,7 @@
 ---
 title: 'Saving and Loading in Unity: Serialization 101'
 publishedAt: '2025-04-30'
+updatedAt: '2025-05-01'
 summary: 'Learn how to save your Unity game data.'
 ---
 
@@ -320,6 +321,15 @@ Here, have an [article](https://medium.com/@fulton_shaun/json-in-unity-part-1-wh
 
 There's also BSON, Protocol Buffers, XML, YAML, heck, even CSV works, but JSON is just fine for most game development purposes.
 
+## Save File Compression
+If you find that your save files are getting a little too big, or if you maybe want to save on that steam cloud file storage quota, you may want to compress your save files.
+
+.NET provides a neat little class called [GZipStream](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream?view=net-9.0).
+
+Read more about how to use it [here](https://learn.microsoft.com/en-us/dotnet/standard/io/how-to-compress-and-extract-files).
+
+For most purposes, gzip is a great, and widely used, lossless compression file format, particularly for text files.
+
 ## Using Reflection to query inherited classes
 Here's a handy trick, let's say you have a base class called Enemy, and a bunch of classes that inherit from it.
 
@@ -467,7 +477,7 @@ Ain't that cool.
 
 ## But Why?
 
-Why not. 
+Why not?
 
 I justify doing fancy things like this by arguing that it lets me be lazy, while also allowing me to enjoy the process of experimenting and exploring engineering possibilities using language features.
 
