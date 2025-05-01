@@ -5,22 +5,22 @@ export default async function Page() {
 
   return (
     <section>
-      <div className="mb-8">
-            <p>Hello there, I'm
-          <span className="ml-1.5 inline-block text-2xl font-semibold tracking-tighter">
-            Lee Jia Keat
-          </span>, I like to build things, and make cool things.
+      <div>
+          <p>Hello there, I'm <strong>Lee Jia Keat</strong>; just a guy who likes to code.
         </p>
       </div>
-      <p>I enjoy experimenting with technology, and I have a strong passion for software development, game development in particular.</p>
+      <br></br>
+      <p>I enjoy building and experimenting with technology, and I love developing software, particularly, games.</p>
       <br></br>
       <p>
-        Aside from being a tech bro, I also enjoy playing around with Blender, and aspire to create characters and worlds that inspire others through technical art.
+        Aside from being a typical tech bro, I also enjoy working with Blender, and aspire to one day create my own characters and worlds that inspire others through technical art.
       </p>
       <br></br>
       <p>
-        Recently, I've been trying to create cool visual effects in Unity, using shaders, particles, procedural generation, post-processing, etc.
+        Most of my recent work has been with the Unity game engine, but I have also worked on custom engines written in C++ (OpenGL), with tiny dabblings in Vulkan, WebGPU and ThreeJS.
       </p>
+      <br></br>
+      <p>Proud alumni of the DigiPen Institute of Technology (Singapore).</p>
       <div className="my-8">
         <section>
           <div className='flex flex-row'>

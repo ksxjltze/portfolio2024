@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import ThemeToggle from './ThemeToggle'
+import { CommandMenu } from './CommandMenu'
 
 const navItems = {
   '/': {
@@ -34,7 +35,8 @@ export function Navbar() {
               )
             })}
           </div>
-          <div className='flex items-end ml-auto mr-0.5 mt-0.5'>
+          <div className='flex items-center ml-auto gap-2.5 p-1 -mt-0.75'>
+            <CommandMenu />
             <ThemeToggle />
           </div>
         </nav>

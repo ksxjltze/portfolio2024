@@ -54,7 +54,7 @@ export async function generateMetadata({ params }) {
 
 function displayLastUpdatedDate(post) {
   if (post.metadata.updatedAt)
-    return (<span className='ml-2 border-solid border text-indigo-500 border-indigo-500 rounded-md p-1 inline-block'>Last Updated: {formatDate(post.metadata.updatedAt)}</span>)
+    return (<span className='ml-2.5 border-solid border text-indigo-700 dark:text-indigo-300 border-indigo-500 rounded-md px-1.5 py-0.75 inline-block'>Last Updated: {formatDate(post.metadata.updatedAt)}</span>)
   else
     return '';
 }
