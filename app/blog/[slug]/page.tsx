@@ -54,7 +54,7 @@ export async function generateMetadata({ params }) {
 
 function displayLastUpdatedDate(post) {
   if (post.metadata.updatedAt)
-    return (<span className='ml-2.5 border-solid border text-indigo-700 dark:text-indigo-300 border-indigo-500 rounded-md px-1.5 py-0.75 inline-block'>Last Updated: {formatDate(post.metadata.updatedAt)}</span>)
+    return (<span className='ml-2.5 border-solid border text-[var(--highlight)] border-indigo-500 rounded-md px-1.5 py-0.75 inline-block'>Last Updated: {formatDate(post.metadata.updatedAt)}</span>)
   else
     return '';
 }
@@ -95,7 +95,7 @@ export default async function Blog({ params }) {
         {post.metadata.title}
       </h1>
       <div className="flex justify-between items-center mt-2 mb-8 text-sm">
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+        <p className="text-sm text-foreground">
           {formatDate(post.metadata.publishedAt)}
           {displayLastUpdatedDate(post)}
         </p>

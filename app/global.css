@@ -5,6 +5,9 @@
 @custom-variant aero (&:where(.frutiger-aero, .frutiger-aero *));
 
 :root {
+  --emphasis: oklch(0.646 0.222 41.116);
+  --highlight: #000000;
+  
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
@@ -51,8 +54,8 @@
 }
 
 .frutiger-aero {
-  --gradient-from: rgba(67, 154, 255, 0.76);
-  --gradient-to: rgba(0, 202, 0, 0.651);
+  --gradient-from: rgba(0, 60, 255, 0.76);
+  --gradient-to: rgba(0, 202, 0, 0.822);
 
   --foreground: oklch(0.985 0 0);
 
@@ -68,6 +71,8 @@
 }
 
 .dark {
+  --highlight: #ffffff;
+
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.145 0 0);
@@ -175,7 +180,7 @@ html {
 }
 
 .prose a {
-  @apply underline transition-all decoration-neutral-400 dark:decoration-neutral-600 underline-offset-2 decoration-[0.1em] text-[#0000ee] dark:text-blue-600;
+  @apply underline transition-all decoration-neutral-400 dark:decoration-neutral-600 underline-offset-2 decoration-[0.1em] text-[var(--highlight)];
 }
 
 .prose .anchor:after {
@@ -260,6 +265,14 @@ pre {
   /* Firefox */
 }
 
+p {
+  color: var(--color-foreground);
+}
+
+.highlighted {
+  color: var(--highlight);
+}
+
 /* Remove Safari input shadow on mobile */
 input[type='text'],
 input[type='email'] {
@@ -290,4 +303,31 @@ table {
 
 body[data-scroll-locked] > main {
   overflow: hidden;
+}
+
+/*
+Aero stuff
+*/
+.frutiger-aero main {
+  background: linear-gradient(
+    180deg,
+    rgba(90, 95, 99, 0.7) 0%,
+    rgba(0, 0, 0, 0.5) 50%,
+    rgba(62, 65, 67, 0.7) 100%
+  );
+
+  padding: 1rem;
+  border-radius: 1rem;
+
+  box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.3),
+  inset 0px 2px 1px rgba(255, 255, 255, 0.31),
+  inset 0px -2px 1px rgba(0, 0, 0, 0.4);
+
+  margin-bottom: 1rem;
+
+}
+.frutiger-aero .prose img {
+  border-radius: 16px;
+  border: solid 0.1rem white;
+  filter: drop-shadow(2px 4px 6px black);
 }
