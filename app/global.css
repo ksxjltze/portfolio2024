@@ -322,6 +322,10 @@ Aero stuff
   background-attachment: fixed;
 }
 
+.frutiger-aero body main {
+  padding-bottom: 0;
+}
+
 .frutiger-aero body[data-scroll-locked] main {
   filter: blur(8px);
 }
