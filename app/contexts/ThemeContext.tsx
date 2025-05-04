@@ -1,17 +1,19 @@
 'use client'
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-type Theme = 'light' | 'dark';
+export type Theme = 'light' | 'dark' | 'frutiger-aero';
 
 interface ThemeContextType {
   theme: Theme;
   toggleTheme: () => void;
+  changeTheme: (theme: Theme) => void;
 }
 
 // Create context with default values
 const ThemeContext = createContext<ThemeContextType>({
   theme: 'light',
   toggleTheme: () => {},
+  changeTheme: (theme: Theme) => {},
 });
 
 export const useTheme = () => useContext(ThemeContext);
@@ -63,12 +65,23 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children, initialT
     localStorage.setItem('theme', newTheme);
     
     // Update HTML class for Tailwind
-    document.documentElement.classList.remove('light', 'dark');
+    document.documentElement.classList.remove('light', 'dark', 'frutiger-aero');
     document.documentElement.classList.add(newTheme);
   };
 
+  const changeTheme = (newTheme : Theme) => {
+    setTheme(newTheme);
+    
+    // Save to localStorage
+    localStorage.setItem('theme', newTheme);
+    
+    // Update HTML class for Tailwind
+    document.documentElement.classList.remove('light', 'dark', 'frutiger-aero');
+    document.documentElement.classList.add(newTheme);
+  }
+
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, changeTheme }}>
       {children}
     </ThemeContext.Provider>
   );

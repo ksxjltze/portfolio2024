@@ -49,7 +49,7 @@ export function CommandMenu() {
 
     return (
         <>
-            <button onClick={openDialog} className="border-2 rounded-full p-2 bg-gray-200 dark:bg-gray-800 hover:border-black dark:hover:border-white transition-colors">
+            <button onClick={openDialog} className="border-2 rounded-full text-background p-2 bg-primary hover:border-[var(--emphasis)] transition-colors">
                 <CommandIcon width={18} height={18}></CommandIcon>
             </button>
             <CommandDialog open={open} onOpenChange={setOpen}>

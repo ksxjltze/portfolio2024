@@ -5,6 +5,7 @@ import { highlight } from 'sugar-high'
 import React from 'react'
 
 import { Sandpack } from "@codesandbox/sandpack-react";
+import ThemeChangeButton from './ThemeChangeButton'
 
 const headings: any[] = [];
 
@@ -107,7 +108,8 @@ let components = {
   a: CustomLink,
   code: Code,
   Table,
-  Sandbox
+  Sandbox,
+  ThemeChangeButton
 }
 
 export function CustomMDX(props) {
