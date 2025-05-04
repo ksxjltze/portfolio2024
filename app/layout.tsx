@@ -70,8 +70,8 @@ export default function RootLayout({
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <meta name="apple-mobile-web-app-title" content="Lee Jia Keat" />
       </head>
-      <body className="antialiased max-w-xl mx-4 mt-8 lg:mx-auto text-foreground dark:text-white bg-background aero:bg-linear-to-b from-(--gradient-from) to-(--gradient-to)">
-        <main className="flex-auto min-w-0 mt-6 flex flex-col px-2 md:px-0">
+      <body className="antialiased w-full mt-8 flex justify-center items-center text-foreground dark:text-white bg-background aero:bg-linear-to-b from-(--gradient-from) to-(--gradient-to)">
+        <main className="flex-auto max-w-xl min-w-0 mt-6 flex flex-col px-2 md:px-0">
           <ThemeProvider initialTheme={'light'}>
             <Navbar />
             {children}

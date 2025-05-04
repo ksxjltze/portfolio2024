@@ -284,8 +284,8 @@ table {
   }
 }
 
-body[data-scroll-locked] > main {
-  overflow: hidden;
+body[data-scroll-locked] main{
+  margin-right: var(--removed-body-scroll-bar-size) !important;
 }
 
 /*
