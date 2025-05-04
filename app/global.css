@@ -18,7 +18,7 @@
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
+  --accent: oklch(0.93 0 none / 0.88);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.577 0.245 27.325);
@@ -284,8 +284,8 @@ table {
   }
 }
 
-body[data-scroll-locked] > main {
-  overflow: hidden;
+body[data-scroll-locked] main{
+  margin-right: var(--removed-body-scroll-bar-size) !important;
 }
 
 /*
@@ -297,6 +297,11 @@ Aero stuff
   --highlight: #57ff60;
 
   --foreground: oklch(0.985 0 0);
+  --popover: oklch(0.78 0.2473 144.02);
+  --popover-foreground: oklch(0.985 0 0);
+  --muted-foreground: oklch(0.99 0 none / 0.94);
+  --accent: oklch(0.13 0 none / 0.25);
+  --accent-foreground: oklch(1 0 none);
 
   --sh-class: #354150;
   --sh-identifier: #354150;
@@ -313,8 +318,33 @@ Aero stuff
   background-image: url("/images/bg/frutiger-aero.jpg");
   background-repeat: no-repeat;
   background-position: center;
-  background-size: cover;
+  background-size: auto;
   background-attachment: fixed;
+}
+
+.frutiger-aero body main {
+  padding-bottom: 0;
+}
+
+.frutiger-aero body[data-scroll-locked] main {
+  filter: blur(8px);
+}
+
+.frutiger-aero .bg-popover {
+  background: linear-gradient(
+    165deg,
+    rgba(0, 140, 255, 0.45) 0%,
+    rgba(69, 160, 152, 0.25) 50%,
+    rgba(0, 255, 42, 0.2) 100%
+  );
+
+  box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.6),
+  inset 0px 2px 1px rgba(255, 255, 255, 0.2),
+  inset 0px -2px 1px rgba(0, 0, 0, 0.2);
+}
+
+.frutiger-aero .overlay {
+  background: transparent;
 }
 
 .frutiger-aero main {
