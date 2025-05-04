@@ -53,23 +53,6 @@
   --sh-entity: #354150;
 }
 
-.frutiger-aero {
-  --gradient-from: rgba(0, 60, 255, 0.76);
-  --gradient-to: rgba(0, 202, 0, 0.822);
-
-  --foreground: oklch(0.985 0 0);
-
-  --sh-class: #354150;
-  --sh-identifier: #354150;
-  --sh-sign: #354150;
-  --sh-string: #354150;
-  --sh-keyword: #354150;
-  --sh-comment: #354150;
-  --sh-jsxliterals: #354150;
-  --sh-property: #354150;
-  --sh-entity: #354150;
-}
-
 .dark {
   --highlight: #ffffff;
 
@@ -308,6 +291,32 @@ body[data-scroll-locked] > main {
 /*
 Aero stuff
 */
+.frutiger-aero {
+  --gradient-from: rgba(0, 60, 255, 0.76);
+  --gradient-to: rgba(0, 202, 0, 0.822);
+  --highlight: #57ff60;
+
+  --foreground: oklch(0.985 0 0);
+
+  --sh-class: #354150;
+  --sh-identifier: #354150;
+  --sh-sign: #354150;
+  --sh-string: #354150;
+  --sh-keyword: #354150;
+  --sh-comment: #354150;
+  --sh-jsxliterals: #354150;
+  --sh-property: #354150;
+  --sh-entity: #354150;
+}
+
+.frutiger-aero body {
+  background-image: url("/images/bg/frutiger-aero.jpg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
 .frutiger-aero main {
   background: linear-gradient(
     180deg,
