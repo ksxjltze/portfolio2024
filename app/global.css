@@ -303,15 +303,15 @@ Aero stuff
   --accent: oklch(0.13 0 none / 0.25);
   --accent-foreground: oklch(1 0 none);
 
-  --sh-class: #354150;
-  --sh-identifier: #354150;
-  --sh-sign: #354150;
-  --sh-string: #354150;
-  --sh-keyword: #354150;
-  --sh-comment: #354150;
-  --sh-jsxliterals: #354150;
-  --sh-property: #354150;
-  --sh-entity: #354150;
+  --sh-class: #ffe15d;
+  --sh-identifier: #e7e7e7;
+  --sh-sign: #e7e7e7;
+  --sh-string: #e7e7e7;
+  --sh-keyword: #e7e7e7;
+  --sh-comment: #39ff43;
+  --sh-jsxliterals: #e7e7e7;
+  --sh-property: #5db0ff;
+  --sh-entity: #ffe15d;
 }
 
 .frutiger-aero body {
@@ -350,9 +350,10 @@ Aero stuff
 .frutiger-aero main {
   background: linear-gradient(
     180deg,
-    rgba(90, 95, 99, 0.7) 0%,
-    rgba(0, 0, 0, 0.5) 50%,
-    rgba(62, 65, 67, 0.7) 100%
+    rgba(76, 80, 83, 0.75) 0%,
+    rgba(32, 32, 32, 0.65) 20%,
+    rgba(26, 26, 26, 0.65) 60%,
+    rgba(62, 65, 67, 0.5) 100%
   );
 
   padding: 1rem;
@@ -365,8 +366,25 @@ Aero stuff
   margin-bottom: 1rem;
 
 }
+
 .frutiger-aero .prose img {
   border-radius: 16px;
   border: solid 0.1rem white;
   filter: drop-shadow(2px 4px 6px black);
+}
+
+.frutiger-aero .prose pre {
+  background: linear-gradient(
+    155deg,
+    rgba(15, 71, 134, 0.596) 0%,
+    rgba(28, 148, 92, 0.247) 50%,
+    rgba(2, 133, 24, 0.26) 100%
+  );
+}
+
+.frutiger-aero .nav-container {
+  border: 1px solid;
+  padding: 8px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #f2faff40, #0000001f);
 }
