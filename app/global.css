@@ -353,7 +353,7 @@ Aero stuff
     rgba(76, 80, 83, 0.75) 0%,
     rgba(32, 32, 32, 0.65) 20%,
     rgba(26, 26, 26, 0.65) 60%,
-    rgba(62, 65, 67, 0.5) 100%
+    rgba(62, 65, 67, 0.55) 100%
   );
 
   padding: 1rem;
@@ -367,7 +367,7 @@ Aero stuff
 
 }
 
-.frutiger-aero .prose img {
+.frutiger-aero img {
   border-radius: 16px;
   border: solid 0.1rem white;
   filter: drop-shadow(2px 4px 6px black);
