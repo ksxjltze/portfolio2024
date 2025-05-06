@@ -53,6 +53,134 @@ Unfortunately, I haven't quite figured out how to make auroras yet, so maybe its
     </ThemeChangeButton>
 </div>
 
+## Styling Frutiger Aero
+Here are the css styles I used for styling my frutiger aero theme, honestly, it's mostly a lot of abusing linear gradients and drop shadows, with a bit of box shadow.
+
+Linear gradients help to achieve the "glossy" look, and shadows make it look a little 3D.
+
+```css
+.frutiger-aero {
+  --gradient-from: rgba(0, 60, 255, 0.76);
+  --gradient-to: rgba(0, 202, 0, 0.822);
+  --highlight: #57ff60;
+
+  --foreground: oklch(0.985 0 0);
+  --popover: oklch(0.78 0.2473 144.02);
+  --popover-foreground: oklch(0.985 0 0);
+  --muted-foreground: oklch(0.99 0 none / 0.94);
+  --accent: oklch(0.13 0 none / 0.25);
+  --accent-foreground: oklch(1 0 none);
+
+  --sh-class: #ffe15d;
+  --sh-identifier: #e7e7e7;
+  --sh-sign: #e7e7e7;
+  --sh-string: #e7e7e7;
+  --sh-keyword: #e7e7e7;
+  --sh-comment: #39ff43;
+  --sh-jsxliterals: #e7e7e7;
+  --sh-property: #5db0ff;
+  --sh-entity: #ffe15d;
+}
+
+.frutiger-aero body {
+  background-image: url("/images/bg/frutiger-aero.jpg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: auto;
+  background-attachment: fixed;
+}
+
+.frutiger-aero body main {
+  padding-bottom: 0;
+}
+
+.frutiger-aero body[data-scroll-locked] main {
+  filter: blur(8px);
+}
+
+.frutiger-aero .bg-popover {
+  background: linear-gradient(
+    165deg,
+    rgba(0, 140, 255, 0.45) 0%,
+    rgba(69, 160, 152, 0.25) 50%,
+    rgba(0, 255, 42, 0.2) 100%
+  );
+
+  box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.6),
+  inset 0px 2px 1px rgba(255, 255, 255, 0.2),
+  inset 0px -2px 1px rgba(0, 0, 0, 0.2);
+}
+
+.frutiger-aero .overlay {
+  background: transparent;
+}
+
+.frutiger-aero main {
+  background: linear-gradient(
+    180deg,
+    rgba(90, 95, 99, 0.65) 0%,
+    rgba(0, 0, 0, 0.5) 50%,
+    rgba(62, 65, 67, 0.5) 100%
+  );
+
+  padding: 1rem;
+  border-radius: 1rem;
+
+  box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.3),
+  inset 0px 2px 1px rgba(255, 255, 255, 0.31),
+  inset 0px -2px 1px rgba(0, 0, 0, 0.4);
+
+  margin-bottom: 1rem;
+
+}
+
+.frutiger-aero .prose img {
+  border-radius: 16px;
+  border: solid 0.1rem white;
+  filter: drop-shadow(2px 4px 6px black);
+}
+
+.frutiger-aero .prose pre {
+  background: linear-gradient(
+    155deg,
+    rgba(15, 71, 134, 0.596) 0%,
+    rgba(28, 148, 92, 0.247) 50%,
+    rgba(2, 133, 24, 0.26) 100%
+  );
+}
+
+.frutiger-aero .nav-container {
+  /* border: 1px solid; */
+  padding: 8px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #f2faff40, #0000001f);
+  filter: drop-shadow(2px 1px 1px black);
+}
+
+.frutiger-aero .nav-item {
+    border-radius: 8px;
+    filter: drop-shadow(2px 1px 1px black);
+    background: linear-gradient(180deg, gray, rgba(1, 1, 1, 0.5));
+}
+```
+
+## Command Panel
+Here's my take on a frutiger aero command panel style, It's arguably a bit hard to read, but I really like the colors.
+
+![Command Panel](/images/frutiger-aero/funky-command-panel.png)
+
+## Kinda Skeuomorphic Buttons
+![Command Panel](/images/frutiger-aero/buttons.png)
+
+Honestly, I still don't really know what counts as frutiger aero, but close enough I guess.
+
+## Going further (probably not)
+Some ideas for later:
+- Canvas overlay for fish and bubbles
+- Make a nicer/dynamic aero background, make it wiggle a bit or something
+- Clouds??
+- Frutiger Aero sandbox using Sandpack
+
 # Further Reading
 
 ## Videos from the interwebs
