@@ -19,6 +19,8 @@ export const metadata = {
         </div>
         <section className="mt-4">
           My main role in the development of Playing God was integrating Steamworks, setting up the player leaderboard and managing cloud saves, with a bit of fiddling with Unity's input system for rebinding keys.
+
+          I joined the project pretty late.
         </section>
       </article>
     )
