@@ -9,6 +9,8 @@ import { baseUrl } from './sitemap'
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from './contexts/ThemeContext'
 
+import { SandPackCSS } from "@/components/sandpack-styles";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -69,6 +71,7 @@ export default function RootLayout({
         <link rel="shortcut icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <meta name="apple-mobile-web-app-title" content="Lee Jia Keat" />
+        <SandPackCSS />
       </head>
       <body className="antialiased w-full mt-8 flex justify-center items-center text-foreground dark:text-white bg-background aero:bg-linear-to-b from-(--gradient-from) to-(--gradient-to)">
         <main className="flex-auto max-w-xl min-w-0 mt-6 flex flex-col px-2 md:px-0">

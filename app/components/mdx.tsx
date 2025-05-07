@@ -6,6 +6,7 @@ import React from 'react'
 
 import { Sandpack } from "@codesandbox/sandpack-react";
 import ThemeChangeButton from './ThemeChangeButton'
+import StylingSandBox from './StylingSandBox'
 
 const headings: any[] = [];
 
@@ -109,6 +110,7 @@ let components = {
   code: Code,
   Table,
   Sandbox,
+  StylingSandBox,
   ThemeChangeButton
 }
 
