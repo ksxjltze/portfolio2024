@@ -13,7 +13,7 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
   --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
+  --primary-foreground: oklch(0 0 none);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
@@ -158,6 +158,18 @@ html {
   cursor: pointer;
 }
 
+a:hover {
+  @apply text-[var(--emphasis)];
+}
+
+a {
+  color: blue;
+}
+
+.nav-item {
+  @apply text-foreground;
+}
+
 .anchor:hover {
   @apply visible;
 }
@@ -246,10 +258,6 @@ pre {
   /* IE and Edge */
   scrollbar-width: none;
   /* Firefox */
-}
-
-p {
-  color: var(--color-foreground);
 }
 
 .highlighted {
@@ -391,7 +399,17 @@ Aero stuff
 }
 
 .frutiger-aero .nav-item {
+    color: white;
     border-radius: 8px;
     filter: drop-shadow(2px 1px 1px black);
     background: linear-gradient(180deg, gray, rgba(1, 1, 1, 0.5));
+    text-decoration: none;
+}
+
+.frutiger-aero .nav-item:hover {
+  color: var(--emphasis);
+}
+
+.frutiger-aero a {
+  color: var(--highlight);
 }
