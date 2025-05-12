@@ -1,5 +1,6 @@
 
 import { DisplayBlogLinks } from 'app/components/posts';
+import { BlogDisplayMode } from 'app/blog/types';
 
 export default async function Page() {
 
@@ -26,7 +27,7 @@ export default async function Page() {
           <div className='flex flex-row'>
             <h1 className='text-2xl mb-2 font-bold'>Articles</h1>
           </div>
-            {DisplayBlogLinks(true, false )}
+            {DisplayBlogLinks(BlogDisplayMode.List, true, false )}
         </section>
       </div>
     </section>
