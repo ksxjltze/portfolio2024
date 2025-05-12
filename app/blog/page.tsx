@@ -1,5 +1,5 @@
 import { DisplayBlogLinks, FetchBlogParams } from 'app/components/posts'
-import BlogSortingOptions from '../components/BlogSortingOptions';
+import BlogDisplayOptions from '../components/BlogDisplayOptions';
 
 export const metadata = {
   title: 'Articles',
@@ -7,18 +7,18 @@ export const metadata = {
 }
 
 export default async function Page(props) {
-  const [sortByUpdated, sortOldestFirst] = await FetchBlogParams(props.searchParams);
+  const [mode, sortByUpdated, sortOldestFirst] = await FetchBlogParams(props.searchParams);
 
   return (
     <div className="my-8">
       <section>
         <div className='flex flex-row'>
           <h1 className='text-2xl mb-2 font-bold'>Articles</h1>
-          <BlogSortingOptions />
+          <BlogDisplayOptions />
         </div>
         <p>I have a habit of writing unfinished articles.</p>
         <br/>
-        {DisplayBlogLinks(sortByUpdated, sortOldestFirst)}
+        {DisplayBlogLinks(mode, sortByUpdated, sortOldestFirst)}
       </section>
     </div>
   )
