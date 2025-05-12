@@ -11,13 +11,18 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-export default function BlogSortingOptions() {
+import { ViewIcon } from "lucide-react";
+import { BlogDisplayMode } from "../blog/types";
+import Blog from "../blog/[slug]/page";
+
+export default function BlogDisplayOptions() {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
 
     let [sortByUpdated, setSortByUpdated] = useState(true);
     let [sortOldestFirst, setSortOldestFirst] = useState(false);
+    let [displayMode, setDisplayMode] = useState(BlogDisplayMode.List);
     let [doSort, setDoSort] = useState(false);
 
     useEffect(() => {
@@ -31,6 +36,21 @@ export default function BlogSortingOptions() {
             replace(`${pathname}?${params.toString()}`);
         }
     }, [searchParams]);
+
+    function toggleDisplayMode() {
+        if (searchParams) {
+            const params = new URLSearchParams(Array.from(searchParams.entries())); 
+            let mode: BlogDisplayMode = Number.parseInt(searchParams.get("mode") ?? "0");
+
+            mode = (mode + 1) % 3;
+            
+            displayMode = mode;
+            setDisplayMode(mode);
+
+            params.set("mode", displayMode.toString().toLowerCase());
+            replace(`${pathname}?${params.toString()}`);
+        }
+    }
 
     function toggleSortByUpdated() {
         setDoSort(true);
@@ -57,6 +77,16 @@ export default function BlogSortingOptions() {
     }
 
     return (<div className="ml-auto align-middle items-center justify-center">
+        <TooltipProvider>
+            <Tooltip>
+                <TooltipTrigger className="w-7 h-7">
+                    {<ViewIcon onClick={toggleDisplayMode} />}
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>{"Change Display Mode"}</p>
+                </TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
         <TooltipProvider>
             <Tooltip>
                 <TooltipTrigger className="w-7 h-7">
