@@ -105,7 +105,8 @@ export default function StylingSandBox(props: {styleTemplate: string}) {
   }
 
   .no-margin-bottom {
-    margin-bottom: 0;}
+    margin-bottom: 0;
+  }
 
   .overlay {
     position: absolute;
@@ -121,7 +122,8 @@ export default function StylingSandBox(props: {styleTemplate: string}) {
       inset 0px 2px 1px rgba(255, 255, 255, 0.2),
       inset 0px -2px 1px rgba(0, 0, 0, 0.2);
       z-index: 1;
-    }
+    backdrop-filter: blur(5px);
+  }
   </style>
 
   <script>
@@ -193,7 +195,7 @@ export default function StylingSandBox(props: {styleTemplate: string}) {
 
         //draw eyes
         ctx.beginPath();
-        ctx.ellipse(fish.x - eyeOffsetX, fish.y - eyeOffsetY, (minorRadius) / 6, (eyeRadius) / 6, 0, 0, 2 * Math.PI);
+        ctx.ellipse(fish.x - eyeOffsetX, fish.y - eyeOffsetY, (minorRadius) / 5.5, (eyeRadius) / 5.5, 0, 0, 2 * Math.PI);
         ctx.fillStyle = "white";
         ctx.fill();
 
