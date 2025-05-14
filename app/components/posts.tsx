@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getBlogPostsByYear, formatBlogDate } from 'app/blog/utils'
 import { BlogDisplayMode } from '../blog/types';
+import Image from 'next/image';
 
 export async function FetchBlogParams(searchParams) {
   const params = await searchParams;
@@ -75,7 +76,7 @@ export function BlogLink(mode: BlogDisplayMode, post, useUpdatedAt) {
               href={`/blog/${post.slug}`}>
                 <h1 className='text-foreground'>{post.metadata.title}</h1>
                 <div className='bg-accent aero:bg-transparent aero:drop-shadow-2xl rounded-2xl'>
-                  <img className="object-contain w-32 h-32" src={post.metadata.image ?? placeholderImage}></img>
+                  <Image alt='article image' className="object-contain w-32 h-32" src={post.metadata.image ?? placeholderImage}></Image>
                 </div>
           </Link>
         </div>
@@ -89,7 +90,7 @@ export function BlogLink(mode: BlogDisplayMode, post, useUpdatedAt) {
               href={`/blog/${post.slug}`}>
               <div>
                 {articleListItem}
-                {post.metadata.image ? <img className="mt-3" src={post.metadata.image}></img> : null}
+                {post.metadata.image ? <Image alt='article image' className="mt-3" src={post.metadata.image}></Image> : null}
               </div>
             </Link>
         </div>

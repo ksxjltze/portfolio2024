@@ -86,7 +86,7 @@ export default function RootLayout({
         </main>
         <Script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js' strategy='beforeInteractive' />
         <Script id="kofi-donations" strategy='beforeInteractive'>
-          {`kofiWidgetOverlay.draw('<kofi_page_name>', {
+          {`kofiWidgetOverlay.draw('ksxjltze', {
             'type': 'floating-chat',
             'floating-chat.donateButton.text': 'Support me',
             'floating-chat.donateButton.background-color': '#5cb85c',

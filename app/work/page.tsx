@@ -31,6 +31,7 @@ export default function Page() {
       </p>
       <p>Check out my <a href="https://leejiakeat.vercel.app/projects">Old Projects</a>, most of which were done when I was still a student.</p>
       <p>Crappy 3D art: <a href="https://www.artstation.com/ksxjltze">https://www.artstation.com/ksxjltze</a></p>
+      <a href='https://ko-fi.com/Z8Z81EXP6U' target='_blank'><img height='36' className='mt-4 border-0 h-12' src='https://storage.ko-fi.com/cdn/kofi6.png?v=6' alt='Buy Me a Coffee at ko-fi.com' /></a>
     </section>
   )
 }
