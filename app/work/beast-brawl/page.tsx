@@ -14,9 +14,10 @@ export const metadata = {
           <a className="text-blue-500 font-bold mb-4" href="https://store.steampowered.com/app/3201630/Beast_Brawl/">
             <Image src="/images/beast-brawl/BB.png" width={800} height={600} alt="Beast Brawl Cover Art"></Image>
           </a>
-          <p>
+          <p className="mb-4">
             Click <a className="text-blue-500 font-bold" href="https://store.steampowered.com/app/3201630/Beast_Brawl/">here</a> to check it out on Steam!
           </p>
+          <iframe src="https://store.steampowered.com/widget/3201630/" width="500" height="190"></iframe>
         </div>
         <section className="mt-4">
           <h1 className="text-2xl mb-4 font-bold">About</h1>

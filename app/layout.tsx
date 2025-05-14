@@ -10,6 +10,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from './contexts/ThemeContext'
 
 import { SandPackCSS } from "@/components/sandpack-styles";
+import Script from 'next/script'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -83,6 +84,15 @@ export default function RootLayout({
           <Analytics />
           <SpeedInsights />
         </main>
+        <Script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js' strategy='beforeInteractive' />
+        <Script id="kofi-donations" strategy='beforeInteractive'>
+          {`kofiWidgetOverlay.draw('<kofi_page_name>', {
+            'type': 'floating-chat',
+            'floating-chat.donateButton.text': 'Support me',
+            'floating-chat.donateButton.background-color': '#5cb85c',
+            'floating-chat.donateButton.text-color': '#fff'
+          });`}
+        </Script>
       </body>
     </html>
   )

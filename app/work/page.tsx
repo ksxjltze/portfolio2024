@@ -10,6 +10,9 @@ export default function Page() {
   return (
     <section>
       <h1 className="font-semibold text-2xl mb-8 aero:ml-4 tracking-tighter">Stuff I've worked on</h1>
+      <section className="flex flex-col items-center justify-center mb-8">
+        <iframe src="https://store.steampowered.com/widget/3667460/" width="500" height="190"></iframe>
+      </section>
       <Link href="/work/playing-god">
         <div className="flex flex-col items-center justify-center aero:drop-shadow-2xl aero:shadow-2xl border-2 border-foreground rounded-md p-4 aero:border-0">
             <h1 className="text-2xl mb-4 text-foreground">Playing God</h1>
