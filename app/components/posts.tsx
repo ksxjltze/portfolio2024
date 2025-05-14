@@ -5,7 +5,7 @@ import { BlogDisplayMode } from '../blog/types';
 export async function FetchBlogParams(searchParams) {
   const params = await searchParams;
 
-  const mode = params.mode;
+  const mode = params.mode ? params.mode : BlogDisplayMode.Cards;
   const sortOldestFirst = params.sortOldestFirst?.toLowerCase() === 'true';
   const sortByUpdated = params.sortByUpdated?.toLowerCase() === 'true';
   const filter = params.filter ? params.filter.split(',') : [];

@@ -42,7 +42,7 @@ export default function BlogDisplayOptions() {
     function toggleDisplayMode() {
         if (searchParams) {
             const params = new URLSearchParams(Array.from(searchParams.entries())); 
-            let mode: BlogDisplayMode = Number.parseInt(searchParams.get("mode") ?? "0");
+            let mode: BlogDisplayMode = Number.parseInt(searchParams.get("mode") ?? "2");
 
             mode = (mode + 1) % 3;
             
