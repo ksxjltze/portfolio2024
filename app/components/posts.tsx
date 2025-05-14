@@ -8,13 +8,14 @@ export async function FetchBlogParams(searchParams) {
   const mode = params.mode;
   const sortOldestFirst = params.sortOldestFirst?.toLowerCase() === 'true';
   const sortByUpdated = params.sortByUpdated?.toLowerCase() === 'true';
+  const filter = params.filter ? params.filter.split(',') : [];
 
-  return [mode, sortByUpdated, sortOldestFirst];
+  return [mode, sortByUpdated, sortOldestFirst, filter];
 }
 
-export function DisplayBlogLinks(mode: BlogDisplayMode, sortByUpdated: boolean, sortOldestFirst: boolean) {
+export function DisplayBlogLinks(mode: BlogDisplayMode, sortByUpdated: boolean, sortOldestFirst: boolean, filter: string[] = []) {
   return <div>
-    {Array.from(getBlogPostsByYear(sortByUpdated, sortOldestFirst))
+    {Array.from(getBlogPostsByYear(sortByUpdated, sortOldestFirst, filter))
       .toSorted((a, b) => {
         const [yearA, _A] = a;
         const [yearB, _B] = b;
@@ -73,7 +74,9 @@ export function BlogLink(mode: BlogDisplayMode, post, useUpdatedAt) {
               className="flex flex-col space-y-1 mb-2 gap-1 items-center justify-between h-full content-center text-center"
               href={`/blog/${post.slug}`}>
                 <h1 className='text-foreground'>{post.metadata.title}</h1>
-                <img className="object-fill w-32 h-32" src={post.metadata.image ?? placeholderImage}></img>
+                <div className='bg-accent aero:bg-transparent aero:drop-shadow-2xl rounded-2xl'>
+                  <img className="object-contain w-32 h-32" src={post.metadata.image ?? placeholderImage}></img>
+                </div>
           </Link>
         </div>
       );

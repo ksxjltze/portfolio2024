@@ -85,10 +85,17 @@ function getBlogPostsSortedByUpdated(ascending: boolean = false) {
   })
 }
 
-export function getBlogPostsByYear(byUpdated: boolean = false, byAscending: boolean = false) : Map<number, BlogPostData[]> {
+export function getBlogPostsByYear(byUpdated: boolean = false, byAscending: boolean = false, filter: string[] = []) : Map<number, BlogPostData[]> {
   const posts = new Map<number, BlogPostData[]>();
 
   let sorted = byUpdated ? getBlogPostsSortedByUpdated(byAscending) : getBlogPostsSorted(byAscending);
+
+  if (filter.length > 0) {
+    sorted = sorted.filter((post) => {
+      return filter.some((tag) => post.metadata.tags?.includes(tag));
+    });
+  }
+
   sorted.forEach((post) => {
     const updatedDate = post.metadata.updatedAt ? post.metadata.updatedAt : post.metadata.publishedAt;
     let publishedDate = new Date(byUpdated ? updatedDate : post.metadata.publishedAt);

@@ -7,7 +7,7 @@ export const metadata = {
 }
 
 export default async function Page(props) {
-  const [mode, sortByUpdated, sortOldestFirst] = await FetchBlogParams(props.searchParams);
+  const [mode, sortByUpdated, sortOldestFirst, filter] = await FetchBlogParams(props.searchParams);
 
   return (
     <div className="my-8">
@@ -18,7 +18,7 @@ export default async function Page(props) {
         </div>
         <p>I have a habit of writing unfinished articles.</p>
         <br/>
-        {DisplayBlogLinks(mode, sortByUpdated, sortOldestFirst)}
+        {DisplayBlogLinks(mode, sortByUpdated, sortOldestFirst, filter)}
       </section>
     </div>
   )

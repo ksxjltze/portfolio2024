@@ -13,7 +13,6 @@ import {
 
 import { ViewIcon } from "lucide-react";
 import { BlogDisplayMode } from "../blog/types";
-import Blog from "../blog/[slug]/page";
 
 export default function BlogDisplayOptions() {
     const searchParams = useSearchParams();
@@ -23,6 +22,7 @@ export default function BlogDisplayOptions() {
     let [sortByUpdated, setSortByUpdated] = useState(true);
     let [sortOldestFirst, setSortOldestFirst] = useState(false);
     let [displayMode, setDisplayMode] = useState(BlogDisplayMode.List);
+    let [filter, setFilter] = useState<string[]>([]);
     let [doSort, setDoSort] = useState(false);
 
     useEffect(() => {
@@ -33,6 +33,8 @@ export default function BlogDisplayOptions() {
             const params = new URLSearchParams(Array.from(searchParams.entries()));
             params.set("sortByUpdated", sortByUpdated.toString());
             params.set("sortOldestFirst", sortOldestFirst.toString());
+            params.set("mode", displayMode.toString().toLowerCase());
+            params.set("filter", filter.join(","));
             replace(`${pathname}?${params.toString()}`);
         }
     }, [searchParams]);
