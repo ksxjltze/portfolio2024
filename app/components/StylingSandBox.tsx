@@ -92,7 +92,7 @@ export default function StylingSandBox(props: {styleTemplate: string}) {
   }
 
   .aero-green {
-    background: linear-gradient(175deg, rgba(222, 222, 222, 0.5), rgba(222, 222, 255, 0.3));
+    background: linear-gradient(175deg, rgba(55, 111, 222, 0.8), rgba(22, 55, 255, 0.5));
     border-radius: 8px;
     filter: drop-shadow(2px 1px 1px rgba(0, 0, 0, 0.1));
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.6),
@@ -130,7 +130,7 @@ export default function StylingSandBox(props: {styleTemplate: string}) {
       canvas = document.getElementById("myCanvas");
       ctx = canvas.getContext("2d");
 
-      const fishCount = 10;
+      const fishCount = 20;
       fishArray = generateFish(fishCount);
 
       draw();
@@ -159,51 +159,66 @@ export default function StylingSandBox(props: {styleTemplate: string}) {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       for (const fish of fishArray) {
-        let size;
-        if (Math.cos(fish.direction) < 0) {
-          size = -fish.size;
+        let tailOffset;
+        const cosDir = Math.cos(fish.direction);
+
+        if (cosDir < 0) {
+          tailOffset = -fish.size;
         }
         else {
-          size = fish.size;
+          tailOffset = fish.size;
         }
-
 
         //draw tail
         ctx.beginPath();
-        ctx.moveTo(fish.x - size, fish.y);
-        ctx.lineTo(fish.x - size * 2, fish.y - size / 2);
-        ctx.lineTo(fish.x - size * 2, fish.y + size / 2);
+        ctx.moveTo(fish.x - tailOffset, fish.y);
+        ctx.lineTo(fish.x - tailOffset * 2, fish.y - tailOffset / 2);
+        ctx.lineTo(fish.x - tailOffset * 2, fish.y + tailOffset / 2);
         ctx.closePath();
         ctx.stroke();
         ctx.fillStyle = fish.color;
         ctx.fill();
 
+        const minorRadius = fish.size * 1.5;
+
         ctx.beginPath();
-        ctx.ellipse(fish.x, fish.y, fish.size * 1.5, fish.size / 3, 0, 0, 2 * Math.PI);
+        ctx.ellipse(fish.x, fish.y, minorRadius, fish.size / 3, 0, 0, 2 * Math.PI);
         ctx.stroke();
         ctx.fillStyle = fish.color;
         ctx.fill();
 
+        const eyeRadius = fish.size / 1.5;
+        const eyeOffsetX = fish.size * Math.sign(-cosDir) * 0.75;
+        const eyeOffsetY = fish.size * 0.05;
+
         //draw eyes
         ctx.beginPath();
-        ctx.ellipse(fish.x - fish.size * Math.sign(-Math.cos(fish.direction)) * 0.75, fish.y, (fish.size * 1.5) / 4, (fish.size / 1.5) / 4, 0, 0, 2 * Math.PI);
+        ctx.ellipse(fish.x - eyeOffsetX, fish.y - eyeOffsetY, (minorRadius) / 6, (eyeRadius) / 6, 0, 0, 2 * Math.PI);
         ctx.fillStyle = "white";
         ctx.fill();
 
         ctx.beginPath();
-        ctx.ellipse(fish.x - fish.size * Math.sign(-Math.cos(fish.direction)) * 0.75, fish.y, (fish.size * 1.5) / 6, (fish.size / 1.5) / 6, 0, 0, 2 * Math.PI);
+        ctx.ellipse(fish.x - eyeOffsetX, fish.y - eyeOffsetY, (minorRadius) / 8, (eyeRadius) / 8, 0, 0, 2 * Math.PI);
         ctx.fillStyle = "black";
         ctx.fill();
 
-        fish.x += Math.cos(fish.direction) * fish.speed;
-        fish.y += Math.sin(fish.direction) * fish.speed / 2;
-        fish.direction += (Math.random() - 0.5) * 0.01;
+        fish.x += cosDir * fish.speed;
+        fish.y += Math.sin(fish.direction) * fish.speed / 8;
 
+        const halfHeight = fish.size / 2;
         if (fish.x < 0 || fish.x > canvas.width) {
           fish.direction = Math.PI - fish.direction;
         }
-        if (fish.y < 0 || fish.y > canvas.height) {
-          fish.direction = -fish.direction;
+          
+        if (fish.y < 0 - halfHeight || fish.y > canvas.height +  halfHeight) {
+          fish.y = canvas.height - fish.y;
+        }
+
+        if (fish.direction > Math.PI) {
+          fish.direction -= Math.PI * 2;
+        }
+        if (fish.direction < -Math.PI) {
+          fish.direction += Math.PI * 2;
         }
       }
       
