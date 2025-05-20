@@ -90,7 +90,7 @@ export function BlogLink(mode: BlogDisplayMode, post, useUpdatedAt) {
               href={`/blog/${post.slug}`}>
               <div>
                 {articleListItem}
-                {post.metadata.image ? <Image alt='article image' className="mt-3" src={post.metadata.image}></Image> : null}
+                {post.metadata.image ? <Image alt='article image' className="mt-3" src={post.metadata.image} width={500} height={500}></Image> : null}
               </div>
             </Link>
         </div>
