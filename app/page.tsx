@@ -1,8 +1,9 @@
 
-import { DisplayBlogLinks } from 'app/components/posts';
+import { DisplayBlogLinks, FetchBlogParams } from 'app/components/posts';
 import { BlogDisplayMode } from 'app/blog/types';
 
-export default async function Page() {
+export default async function Page(props) {
+  const [_, _2, _3, filter, query] = await FetchBlogParams(props.searchParams);
 
   return (
     <section>
@@ -27,7 +28,7 @@ export default async function Page() {
           <div className='flex flex-row'>
             <h1 className='text-2xl mb-2 font-bold'>Articles</h1>
           </div>
-            {DisplayBlogLinks(BlogDisplayMode.List, true, false )}
+            {DisplayBlogLinks(BlogDisplayMode.List, true, false, filter, query )}
         </section>
       </div>
     </section>

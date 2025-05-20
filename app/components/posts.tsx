@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { getBlogPostsByYear, formatBlogDate } from 'app/blog/utils'
 import { BlogDisplayMode } from '../blog/types';
 import Image from 'next/image';
+import SearchArticle from './SearchArticle';
 
 export async function FetchBlogParams(searchParams) {
   const params = await searchParams;
@@ -10,13 +11,15 @@ export async function FetchBlogParams(searchParams) {
   const sortOldestFirst = params.sortOldestFirst?.toLowerCase() === 'true';
   const sortByUpdated = params.sortByUpdated?.toLowerCase() === 'true';
   const filter = params.filter ? params.filter.split(',') : [];
+  const query = params.query ? params.query : "";
 
-  return [mode, sortByUpdated, sortOldestFirst, filter];
+  return [mode, sortByUpdated, sortOldestFirst, filter, query];
 }
 
-export function DisplayBlogLinks(mode: BlogDisplayMode, sortByUpdated: boolean, sortOldestFirst: boolean, filter: string[] = []) {
+export function DisplayBlogLinks(mode: BlogDisplayMode, sortByUpdated: boolean, sortOldestFirst: boolean, filter: string[] = [], query: string) {
   return <div>
-    {Array.from(getBlogPostsByYear(sortByUpdated, sortOldestFirst, filter))
+    <SearchArticle placeholder="Search for articles..." />
+    {Array.from(getBlogPostsByYear(sortByUpdated, sortOldestFirst, filter, query))
       .toSorted((a, b) => {
         const [yearA, _A] = a;
         const [yearB, _B] = b;
@@ -76,7 +79,7 @@ export function BlogLink(mode: BlogDisplayMode, post, useUpdatedAt) {
               href={`/blog/${post.slug}`}>
                 <h1 className='text-foreground'>{post.metadata.title}</h1>
                 <div className='bg-accent aero:bg-transparent aero:drop-shadow-2xl rounded-2xl'>
-                  <Image alt='article image' className="object-contain w-32 h-32" src={post.metadata.image ?? placeholderImage}></Image>
+                  <Image alt='article image' className="object-contain w-32 h-32" width={128} height={128} src={post.metadata.image ?? placeholderImage}></Image>
                 </div>
           </Link>
         </div>

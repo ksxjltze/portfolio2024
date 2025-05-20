@@ -11,7 +11,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-import {SearchIcon, ViewIcon} from "lucide-react";
+import {ViewIcon} from "lucide-react";
 import { BlogDisplayMode } from "../blog/types";
 
 export default function BlogDisplayOptions() {
@@ -78,10 +78,6 @@ export default function BlogDisplayOptions() {
         }
     }
 
-    function openSearchPopup() {
-        
-    }
-
     return (<div className="ml-auto align-middle items-center justify-center">
         <TooltipProvider>
             <Tooltip>
@@ -110,16 +106,6 @@ export default function BlogDisplayOptions() {
                 </TooltipTrigger>
                 <TooltipContent>
                     <p>{sortOldestFirst ? "Show Newest First" : "Show Oldest First"}</p>
-                </TooltipContent>
-            </Tooltip>
-        </TooltipProvider>
-        <TooltipProvider>
-            <Tooltip>
-                <TooltipTrigger className="w-7 h-7">
-                    <SearchIcon onClick={openSearchPopup}></SearchIcon>
-                </TooltipTrigger>
-                <TooltipContent>
-                    <p>Search</p>
                 </TooltipContent>
             </Tooltip>
         </TooltipProvider>

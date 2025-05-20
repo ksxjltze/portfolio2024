@@ -85,12 +85,18 @@ function getBlogPostsSortedByUpdated(ascending: boolean = false) {
   })
 }
 
-export function getBlogPostsByYear(byUpdated: boolean = false, byAscending: boolean = false, filter: string[] = []) : Map<number, BlogPostData[]> {
+export function getBlogPostsByYear(byUpdated: boolean = false, byAscending: boolean = false, filter: string[] = [], query: string) : Map<number, BlogPostData[]> {
   const posts = new Map<number, BlogPostData[]>();
 
   let sorted = byUpdated ? getBlogPostsSortedByUpdated(byAscending) : getBlogPostsSorted(byAscending);
 
-  if (filter.length > 0) {
+  if (query?.length > 0) {
+    sorted = sorted.filter((post) => {
+      return post.metadata.title.toLowerCase().includes(query.toLowerCase()) || post.metadata.summary.toLowerCase().includes(query.toLowerCase());
+    });
+  }
+
+  if (filter?.length > 0) {
     sorted = sorted.filter((post) => {
       return filter.some((tag) => post.metadata.tags?.includes(tag));
     });
