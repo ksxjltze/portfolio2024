@@ -1,6 +1,7 @@
 ---
-title: 'Easy game telemetry with Google Cloud'
+title: 'Easy game telemetry with Google Cloud (Unity)'
 publishedAt: '2025-05-08'
+updatedAt: '2025-05-27'
 summary: 'Recording game data for further processing'
 tags: 'telemetry, gcf, gcp, cloud, google, unity, node, serverless'
 ---
@@ -362,3 +363,41 @@ private void OnBattleEnded(bool won)
 # Further Reading
 - [What is Cloud Run](https://cloud.google.com/run/docs/overview/what-is-cloud-run)
 - [Cloud Firestore](https://firebase.google.com/docs/firestore)
+
+# Dealing with NaN
+One extremely frustrating pitfall is dealing with NaN values, it completely ruins the payload, so make sure that you verify your data before posting it.
+
+As a precaution, using JSON.Parse in your Cloud Run function can help to catch this bug.
+
+E.g. NaN Check in C#
+
+```C#
+averageOutgoingDamage = float.IsNaN(data.averageOutgoingDamage) || float.IsInfinity(data.averageOutgoingDamage) ? 0 : data.averageOutgoingDamage;
+```
+
+#Serializing Dictionaries
+Unity doesn't support dictionary serialization by default, so you either have to make your own serializable dictionary, or make do with workarounds like parallel arrays.
+
+Parallel arrays are simply arrays that are "synchronized", they have the same number of elements, and each element corresponds to a respective element at the same index in each array.
+
+These are perfect for serializaing dictionaries, since dictionaries are, at face value, just collections of key-value pairs.
+
+We can split these key-value pairs into parallel arrays or lists, and pass them to the JsonUtility for easy serialization.
+
+## Example Intermediary struct for dictionary serialization
+```C#
+	[Serializable]
+	public struct DictionaryPayload<TKey, TValue>
+	{
+        public List<TKey> keys;
+        public List<TValue> values;
+
+		public DictionaryPayload(Dictionary<TKey, TValue> dictionary)
+		{
+			keys = dictionary.Keys.ToList();
+			values = dictionary.Values.ToList();
+        }
+
+		public static implicit operator DictionaryPayload<TKey, TValue>(Dictionary<TKey, TValue> dictionary) => new(dictionary);
+    }
+```
