@@ -1,0 +1,106 @@
+---
+title: 'Simple JavaScript Input System'
+publishedAt: '2025-06-10'
+summary: 'How to Input'
+tags: 'game, web, js, input'
+image: '/images/doro-tower/early-input.png'
+---
+
+## Event Handlers
+The typical way to work with input on the web is to use event handlers, like [this article says](https://developer.mozilla.org/en-US/docs/Games/Techniques/Control_mechanisms/Desktop_with_mouse_and_keyboard).
+
+However, if you try to directly update game logic using just these event handlers, you would find it to be janky and a little clunky.
+
+In order to remedy this, we can create a simple input system that stores the intermittent state of input keys in a map or buffer.
+
+This can be updated on a frame-by-frame basis, to achieve something similar to say, Unity's `Input.GetKeyDown()`.
+
+## Primitive Input System
+```js
+const Input = {
+  Key: {
+    W: 'w',
+    A: 'a',
+    S: 's',
+    D: 'd',
+  },
+
+  MouseButton: {
+    Left: 0,
+    Right: 1,
+    Middle: 2,
+  },
+
+  keyMap: new Map<string, boolean>(),
+  frameKeyMap: new Map<string, boolean>(),
+
+  GetKeyDown: (key: string): boolean => {
+    return Input.frameKeyMap.get(key) === true;
+  },
+
+  GetKeyUp: (key: string): boolean => {
+    return Input.frameKeyMap.get(key) === false;
+  },
+
+  GetKey: (key: string): boolean => {
+    return Input.keyMap.get(key) ?? false;
+  },
+
+  SetKey: (key: string, value: boolean): void => {
+    Input.keyMap.set(key, value);
+    Input.frameKeyMap.set(key, value);
+  },
+}
+```
+
+## Setup (using classes)
+```ts
+keyDownHandler(event: KeyboardEvent) {
+    Input.SetKey(event.key, true);
+    }
+
+keyUpHandler(event: KeyboardEvent) {
+    Input.SetKey(event.key, false);
+}
+
+setupInput() {
+    document.addEventListener("keydown", this.keyDownHandler.bind(this), false);
+    document.addEventListener("keyup", this.keyUpHandler.bind(this), false);
+}
+```
+
+## Frame Update
+```ts
+update(timestamp?: DOMHighResTimeStamp) {
+    if (this.lastTimestamp === null) {
+        this.lastTimestamp = timestamp || performance.now();
+    }
+
+    // Update input state for the current frame
+    Input.frameKeyMap.clear();
+
+    const time = timestamp || performance.now();
+    this.deltaTime = (time - this.lastTimestamp) / 1000; // convert to seconds
+    this.elapsedTime += this.deltaTime;
+    this.lastTimestamp = timestamp || performance.now();
+
+    this.updatePlayer();
+}
+```
+
+## Example Usage
+```ts
+updatePlayer() {
+    const speed = 5;
+
+    Input.GetKeyDown(Input.Key.W) && (this.player.transform.position.y += speed * this.deltaTime);
+    Input.GetKeyDown(Input.Key.S) && (this.player.transform.position.y -= speed * this.deltaTime);
+    Input.GetKeyDown(Input.Key.A) && (this.player.transform.position.x -= speed * this.deltaTime);
+    Input.GetKeyDown(Input.Key.D) && (this.player.transform.position.x += speed * this.deltaTime);
+}
+```
+
+## Input System in Action (Tower of Doro)
+<video className="mt-4" autoPlay preload="auto" playsInline muted loop>
+    <source src="/videos/doro-tower/input.mp4" type="video/mp4" />
+</video>

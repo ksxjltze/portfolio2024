@@ -1,6 +1,7 @@
 ---
 title: 'Making a 2D game with WebGPU: Tower of Doro'
 publishedAt: '2025-05-29'
+updatedAt: '2025-06-10'
 summary: 'World of Doro'
 tags: 'game, webgpu, doro, angular'
 image: '/images/tower-of-doro/thumbnail.png'
@@ -23,6 +24,25 @@ A 2D game shouldn't be too difficult, right?
 - WebGPU
 - Vercel
 
+## Multiplayer?
+- SpacetimeDB (probably the easiest and laziest method atm)
+- WebSockets
+- Custom UDP Protocol?
+
+## Engine Stuff
+- Input System
+- Tilemap Editor
+- 2D Rendering (WebGPU)
+
+## Game Mechanics
+- Top Down ARPG (kinda)
+- Incremental Gameplay of some kind
+- Base Building
+- Skill Tree and stuff
+
+## How to manage scope
+idk
+
 ## Demo?
 Check it out here: [Tower Of Doro](https://tower-of-doro.vercel.app/)
 
@@ -34,6 +54,12 @@ WebGPU Source: [game.component.ts](https://github.com/ksxjltze/tower-of-doro/blo
 **May 29 2025** - 500 lines of code later, we have a spinning doro:
 <video width="600" height="300" controls preload="false" autoPlay={false} loop={true}>
     <source src="/videos/dororong/dowo.mp4" type="video/mp4" />
+    Your browser does not support the video tag.
+</video>
+
+**June 6 2025** - Primitive Input and Tilemap:
+<video width="600" height="300" controls preload="false" autoPlay={false} loop={true}>
+    <source src="/videos/doro-tower/input.mp4" type="video/mp4" />
     Your browser does not support the video tag.
 </video>
 

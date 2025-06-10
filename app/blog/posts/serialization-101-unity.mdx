@@ -87,6 +87,11 @@ It might be tempting to simply tack on the `[Serializable]` attribute onto the e
 
 Here's where I plug the good old **[Separation of Concerns principle](https://nalexn.github.io/separation-of-concerns/)** to justify not being lazy with data organization.
 
+## BUT WAIT
+Sometimes, you can get around this by using the `[SerializeReference]` attribute, which is also really handy for serializing classes that use polymorphism, as the SerializeReference attribute also stores the class type.
+
+Read more about it here: [SerializeReference](https://docs.unity3d.com/6000.1/Documentation/ScriptReference/SerializeReference.html);
+
 DIGRESSION OVER; For example, let's say that your `PowerUp` class looks like this:
 ```C#
 public class PowerUp : MonoBehaviour 
