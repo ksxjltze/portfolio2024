@@ -1,7 +1,7 @@
 ---
 title: 'Making a 2D game with WebGPU: Tower of Doro'
 publishedAt: '2025-05-29'
-updatedAt: '2025-06-10'
+updatedAt: '2025-06-12'
 summary: 'World of Doro'
 tags: 'game, webgpu, doro, angular'
 image: '/images/tower-of-doro/thumbnail.png'
@@ -33,6 +33,9 @@ A 2D game shouldn't be too difficult, right?
 - Input System
 - Tilemap Editor
 - 2D Rendering (WebGPU)
+- Sprite Sheet Animation
+- Some kind of Behaviour Architecture (ECS, etc.)
+- Event Bus/PubSub System
 
 ## Game Mechanics
 - Top Down ARPG (kinda)
@@ -63,8 +66,28 @@ WebGPU Source: [game.component.ts](https://github.com/ksxjltze/tower-of-doro/blo
     Your browser does not support the video tag.
 </video>
 
+**June 12 2025** - Sprite Sheet Animation
+
+Many files later..
+
+![File Structure](/images/doro-tower/file-structure.png)
+
+Doro can now animates, poggers.
+<video width="600" height="300" controls preload="false" autoPlay={false} loop={true}>
+    <source src="/videos/doro-tower/spritesheet.mp4" type="video/mp4" />
+    Your browser does not support the video tag.
+</video>
+
+## Stuff used for animation (so far)
+- Texture Atlas for sprite sheet animation
+- UV Offsets
+- "ECS" System for game behaviors
+
+## Stuff I wanted to use but failed to
+- Texture Arrays
+
 ## TODO:
-A lot.
+A lot..
 
 STAY TUNED FOR THE BEST DORO GAME YOU'VE EVER SEEN (from me).
 
