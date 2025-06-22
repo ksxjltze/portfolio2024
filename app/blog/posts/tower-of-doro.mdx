@@ -1,5 +1,5 @@
 ---
-title: 'Making a 2D game with WebGPU: Tower of Doro'
+title: 'Tower of Doro: A 2D online WebGPU game'
 publishedAt: '2025-05-29'
 updatedAt: '2025-06-22'
 summary: 'World of Doro'
@@ -10,6 +10,8 @@ image: '/images/tower-of-doro/thumbnail.png'
 Making games on the web these days is incredibly easy, so let's make it difficult (relatively) by using WebGPU!
 
 A 2D game shouldn't be too difficult, right?
+
+Unfortunately, because we're starting with nothing but WebGPU, we also need a game engine to do anything. So let's make one in TypeScript!
 
 ## Stuff needed from/for/using WebGPU
 - Vertex Buffers
@@ -54,7 +56,7 @@ WebGPU-relevant source: [renderer.ts](https://github.com/ksxjltze/tower-of-doro/
 
 # Dev Log
 
-**May 29 2025** - 500 lines of code later, we have a spinning doro:
+## **May 29 2025** - 500 lines of code later, we have a spinning doro:
 
 At this point, we have a working basic WebGPU renderer, and can draw single images to the screen. It is however, extremely rudimentary.
 
@@ -63,7 +65,7 @@ At this point, we have a working basic WebGPU renderer, and can draw single imag
     Your browser does not support the video tag.
 </video>
 
-**June 6 2025** - Primitive Input and Tilemap:
+## **June 6 2025** - Primitive Input and Tilemap:
 
 With the help of instancing and storage buffers, we now have a working Tile Map. I also added some simple input to move the player sprite around.
 
@@ -74,7 +76,7 @@ For now, it's all just grass tiles.
     Your browser does not support the video tag.
 </video>
 
-**June 12 2025** - Sprite Sheet Animation
+## **June 12 2025** - Sprite Sheet Animation
 
 Many files later.. and a lot of refactoring/abstraction:
 
@@ -91,15 +93,15 @@ At this point, DoroEngine™ has behaviour systems, Sprite Sheets, Input, 2D Ren
 
 Side Note: I can't figure out how to get rid of the browser keyboard sounds in code, so I'll just live with it I guess.
 
-## Stuff used for 2D Animation (so far)
+### Stuff used for 2D Animation (so far)
 - Texture Atlas for sprite sheet animation
 - UV Offsets
 - "ECS" System for game logic
 
-## Stuff I wanted to use but failed to
+### Stuff I wanted to use but failed to
 - Texture Arrays: Either WebGPU doesn't support texture arrays or a '2d-array' texture view isn't what I think it is, cause it just doesn't work.
 
-**June 20 2025** - Tile Map Editor
+## **June 20 2025** - Tile Map Editor
 
 After a lot of fiddling with matrix math, a lot of refactoring, abstracting, and finally getting orthographic projection to work properly, we now have a working tile map editor.
 Saved using localStorage (for now).
@@ -123,11 +125,21 @@ With the help of Supabase, we now have user accounts, I contemplated using Space
 
 Also, I really don't feel like touching Kubernetes right now.
 
-![Authentication](/images/tower-of-doro/22062025.png)
+## Home Page (Game)
+![Home](/images/tower-of-doro/22062025.png)
 
-Supabase is also probably the least effort to get up and running (for now).
+## User Profile
+![Auth](/images/tower-of-doro/auth.png)
+
+Supabase is probably the least effort to get up and running (for now).
 
 Read more about how to use Supabase with Angular [here](https://supabase.com/docs/guides/getting-started/tutorials/with-angular).
+
+### Side Peeve: Using Supabase with Angular
+
+Annoyingly, Supabase throws errors when working with Angular's default change detection, which uses zone.js. 
+
+Disabling this, and using zoneless change detection, grants the developer more control over when components update, but also results in more verbose code, for better or worse.
 
 ## What's next?
 
