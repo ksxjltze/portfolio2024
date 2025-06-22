@@ -1,7 +1,7 @@
 ---
 title: 'Making a 2D game with WebGPU: Tower of Doro'
 publishedAt: '2025-05-29'
-updatedAt: '2025-06-12'
+updatedAt: '2025-06-22'
 summary: 'World of Doro'
 tags: 'game, webgpu, doro, angular'
 image: '/images/tower-of-doro/thumbnail.png'
@@ -18,16 +18,13 @@ A 2D game shouldn't be too difficult, right?
 - Texture Sampling
 - Uniforms
 - Matrix Math
+- Instancing
 
-## "Stack"
-- Angular
-- WebGPU
-- Vercel
-
-## Multiplayer?
-- SpacetimeDB (probably the easiest and laziest method atm)
-- WebSockets
-- Custom UDP Protocol?
+## My Tech "Stack"
+- Supabase: DB, WebSockets, "Backend", Auth
+- WebGPU: Rendering, and possibly Compute
+- Angular: Frontend Client, and Routing
+- Vercel: Hosting
 
 ## Engine Stuff
 - Input System
@@ -42,25 +39,36 @@ A 2D game shouldn't be too difficult, right?
 - Incremental Gameplay of some kind
 - Base Building
 - Skill Tree and stuff
+- Doro Generator (Character Customization)
 
-## How to manage scope
-idk
+## How to manage scope?
+Who knows, just do a bit every day.
 
-## Demo?
+## Demo
 Check it out here: [Tower Of Doro](https://tower-of-doro.vercel.app/)
 
-## Gib Cod
-Check out the source code here: [Github](https://github.com/ksxjltze/tower-of-doro)
+## Source Code
+Check out the public repository here: [Github](https://github.com/ksxjltze/tower-of-doro)
 
-WebGPU Source: [game.component.ts](https://github.com/ksxjltze/tower-of-doro/blob/master/src/app/game/game.component.ts)
+WebGPU-relevant source: [renderer.ts](https://github.com/ksxjltze/tower-of-doro/blob/master/src/app/engine/core/renderer.ts)
+
+# Dev Log
 
 **May 29 2025** - 500 lines of code later, we have a spinning doro:
+
+At this point, we have a working basic WebGPU renderer, and can draw single images to the screen. It is however, extremely rudimentary.
+
 <video width="600" height="300" controls preload="false" autoPlay={false} loop={true}>
     <source src="/videos/dororong/dowo.mp4" type="video/mp4" />
     Your browser does not support the video tag.
 </video>
 
 **June 6 2025** - Primitive Input and Tilemap:
+
+With the help of instancing and storage buffers, we now have a working Tile Map. I also added some simple input to move the player sprite around.
+
+For now, it's all just grass tiles.
+
 <video width="600" height="300" controls preload="false" autoPlay={false} loop={true}>
     <source src="/videos/doro-tower/input.mp4" type="video/mp4" />
     Your browser does not support the video tag.
@@ -68,23 +76,68 @@ WebGPU Source: [game.component.ts](https://github.com/ksxjltze/tower-of-doro/blo
 
 **June 12 2025** - Sprite Sheet Animation
 
-Many files later..
+Many files later.. and a lot of refactoring/abstraction:
 
 ![File Structure](/images/doro-tower/file-structure.png)
 
 Doro can now animates, poggers.
+
 <video width="600" height="300" controls preload="false" autoPlay={false} loop={true}>
     <source src="/videos/doro-tower/spritesheet.mp4" type="video/mp4" />
     Your browser does not support the video tag.
 </video>
 
-## Stuff used for animation (so far)
+At this point, DoroEngine™ has behaviour systems, Sprite Sheets, Input, 2D Rendering, etc. Not too shabby.
+
+Side Note: I can't figure out how to get rid of the browser keyboard sounds in code, so I'll just live with it I guess.
+
+## Stuff used for 2D Animation (so far)
 - Texture Atlas for sprite sheet animation
 - UV Offsets
-- "ECS" System for game behaviors
+- "ECS" System for game logic
 
 ## Stuff I wanted to use but failed to
-- Texture Arrays
+- Texture Arrays: Either WebGPU doesn't support texture arrays or a '2d-array' texture view isn't what I think it is, cause it just doesn't work.
+
+**June 20 2025** - Tile Map Editor
+
+After a lot of fiddling with matrix math, a lot of refactoring, abstracting, and finally getting orthographic projection to work properly, we now have a working tile map editor.
+Saved using localStorage (for now).
+
+It also has panning (not shown in video), also the black borders around each tile are for debugging purposes, to ensure that each tile is actually aligned correctly.
+
+Getting the math working for this was a lot more work than expected, firstly because memory padding is a pain to think about, but also because I was too lazy to implement projection initially.
+
+Orthographic Projection actually makes it a lot easier to reason about the math in code. Partially because I chose to convert my engine transform coordinates from clip-space (which it was initially), to pixel space or screen space.
+
+As a result of that, I can easily define one unit, or one tile, as a fixed pixel size, e.g. 64px. Using this unit consistently makes the math a lot less painful to work through.
+
+<video width="600" height="300" controls preload="false" autoPlay={false} loop={true}>
+    <source src="/videos/doro-tower/tile-map-editor.mp4" type="video/mp4" />
+    Your browser does not support the video tag.
+</video>
+
+**June 22 2025** - Authentication and User Profile
+
+With the help of Supabase, we now have user accounts, I contemplated using SpacetimeDB, and Spring for the backend; cost-wise, Supabase seems to be the best choice. 
+
+Also, I really don't feel like touching Kubernetes right now.
+
+![Authentication](/images/tower-of-doro/22062025.png)
+
+Supabase is also probably the least effort to get up and running (for now).
+
+Read more about how to use Supabase with Angular [here](https://supabase.com/docs/guides/getting-started/tutorials/with-angular).
+
+## What's next?
+
+Some actual gameplay probably?
+
+I've decided to start with some simple incremental gameplay. 
+
+Doro collects Doro Particles™ (DP) from the void passively, and can upgrade her Doro Drive™ to collect DP faster.
+
+After that, I'll probably implement some simple chat and multiplayer using WebSockets.
 
 ## TODO:
 A lot..
