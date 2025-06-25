@@ -109,11 +109,11 @@ public static class EventBus {
             subscriber.OnEvent(eventName, data);
         }
     }
-
+    ...
 }
 ```
 
-### Event Subscriber
+### Event Subscriber (MonoBehaviour)
 ```C#
 public class EventSubscriber : MonoBehaviour
 {
@@ -140,10 +140,77 @@ public class LevelController : MonoBehaviour {
         EventBus.Publish("LevelStarted", Time.time);
     }
 }
+
+public class SomeOtherScript: MonoBehaviour {
+    public EventSubscriber subscriber;
+
+    void Start() {
+        subscriber.Subscribe("LevelStarted", (data) => {
+            if (data is float) {
+                float time = (float) data;
+                Debug.Log("Level Started! Time: " + time);
+
+                //do stuff
+            }
+        });
+    }
+}
 ```
 
-## Unity Events
-WIP
+### Single Event Subscriber
+In some cases, you may not want to add a new GameObject or component just to create a new Subscriber.
 
-## Scriptable objects
-WIP
+```C#
+public class SingleEventSubscriber : ISubscriber
+{
+    string eventName;
+    Action<object> action;
+
+    public SingleEventSubscriber(string eventName, Action<object> action)
+    {
+        this.eventName = eventName;
+        this.action = action;
+
+        Subscribe(eventName, action);
+    }
+
+    ~SingleEventSubscriber()
+    {
+        UnSubscribe();
+    }
+
+    public void OnPush(string eventName, object data)
+    {
+        action.Invoke(data);
+    }
+
+    public void Subscribe(string eventName, Action<object> action)
+    {
+        EventBus.Subscribe(eventName, this);
+    }
+
+    public void UnSubscribe()
+    {
+        EventBus.UnSubscribe(eventName, this);
+    }
+}
+```
+
+### Single Event Subscriber Usage
+```C#
+public class SomeScript : MonoBehaviour
+{
+    public string eventName;
+    SingleEventSubscriber subscriber;
+
+    void Start() {
+        subscriber = new SingleEventSubscriber(eventName, (data) => {
+            //do stuff
+        });
+    }
+    
+    void OnDestroy() {
+        subscriber.UnSubscribe();
+    }
+}
+```

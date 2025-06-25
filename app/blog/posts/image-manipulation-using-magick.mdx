@@ -1,0 +1,53 @@
+---
+title: 'Mass Manipulation of Images using Image Magick'
+publishedAt: '2025-06-25'
+summary: 'Image Magick can do lots of cool stuff with images'
+tags: 'image, cmd, tool'
+---
+
+Recently, I stumbled across this amazing tool called [Image Magick](https://imagemagick.org/index.php).
+
+Image Magick is amazing for manipulating images, and it comes with a command-line interface, which allows us to perform complex image manipulation tasks.
+
+My first use case for Image Magick was to crop a bunch of mahjong tile textures that I took from [this guy](https://commons.wikimedia.org/wiki/Category:SVG_Oblique_illustrations_of_Mahjong_tiles) on Wikipedia ([Cangjie6](https://commons.wikimedia.org/wiki/Category:SVG_Oblique_illustrations_of_Mahjong_tiles) / [CC BY-SA](https://creativecommons.org/licenses/by-sa/4.0)).
+
+# Original Image
+![Cat_Mahjong](/images/mahjong/cat.png)
+
+At first, I simply wanted to mass crop images, but then I realized I could do so much more, like removing the background, or cleaning up regions of the images.
+
+## Images to convert
+![Mahjong Images](/images/mahjong/folder.png)
+
+# Final Command
+After a lot of trial and error, I finally got a script that crops all the images in the directory, fills in the background with either white or transparent, cleans up specific areas of the image, and trims it to remove "empty" space.
+```
+magick * -crop 165x188+13+54 -draw "rectangle 0,0,3,188" -draw "rectangle 0,0,13,17" -draw "rectangle 0, 169, 19, 188" -draw "rectangle 162,0,165,188" -draw "rectangle 134,163,165,188" -background transparent -fill white -fuzz 25% -opaque #F0F8E4 -opaque black -trim cropped.png
+```
+
+## Rough Command Breakdown
+- crop: This just crops the image to the specified dimensions ([width]x[height]+[offsetX]+[offsetY]) from the top right of the image.
+- draw: I use this to draw rectangles to clean up certain regions of the image, this is combined with -fill to color in the regions.
+- background: Pretty self-explanatory, it sets the background color, although this might not actually be necessary, since we can just use -fill instead.
+- fill: Sets the fill color, I used either "white" or "transparent"
+- opaque: This looks for pixels matching a specified color and replaces it with the fill color.
+- fuzz: When used with opaque, this allows the matching algorithm to match colors around the specified color, instead of just that value.
+- trim: Trims whitespace from the image.
+
+For more details, refer to the [official documentation](https://imagemagick.org/script/command-line-processing.php).
+
+# Final Results
+While not perfect, the results are satisfactory enough for me, at least for prototyping a Mahjong game.
+
+## Cropped (White Background)
+![Cat_Cropped](/images/mahjong/cat-cropped.png)
+
+## Transparent
+![Cat_Transparent](/images/mahjong/cat-transparent.png)
+
+## Converted Images (White)
+![Converted Mahjong Tiles](/images/mahjong/cropped-white-folder.png)
+
+## Download
+- <a href="/images/mahjong/mahjong-transparent.zip" download>Transparent</a>
+- <a href="/images/mahjong/mahjong-white.zip" download>White</a>

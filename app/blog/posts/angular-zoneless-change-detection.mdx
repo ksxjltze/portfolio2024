@@ -1,0 +1,88 @@
+---
+title: 'Working with Zoneless Change Detection in Angular'
+publishedAt: '2025-06-24'
+summary: 'DETECT MY CHANGES'
+tags: 'angular, change-detection, web'
+---
+
+When adding Supabase to my WebGPU game, I ran into this annoying error: "Acquiring an exclusive Navigator LockManager immediately failed".
+
+After a quick google search, the solution turns out to be to disable change detection using zone.js. See [here](https://github.com/supabase/supabase-js/issues/936) for more details.
+
+For better or worse, this changes the way that components are normally written in Angular.
+
+Zoneless Change Detection (ZCD) grants more control over when components are updated, but it also requires the developer to explicitly invoke change detection where it is required, resulting in much more verbose code.
+
+Fortunately, once you get used to this, it's relatively painless, just expect to be calling `this.changeRef.detectChanges()` a lot.
+
+## Angular App Configuration
+```ts
+export const appConfig: ApplicationConfig = {
+  providers: [provideExperimentalZonelessChangeDetection(), provideRouter(routes)]
+};
+```
+
+## Example Simple Authentication Component using ZCD
+```ts
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core'
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms'
+import { SupabaseService } from '../supabase.service'
+import { Router } from '@angular/router';
+
+@Component({
+  selector: 'app-auth',
+  templateUrl: './auth.component.html',
+  styleUrls: ['./auth.component.css'],
+  imports: [ReactiveFormsModule],
+  changeDetection: ChangeDetectionStrategy.Default
+})
+export class AuthComponent {
+  loading = false
+  loginForm: FormGroup = new FormGroup({
+    email: new FormControl(''),
+    password: new FormControl(''),
+  });
+
+  constructor(
+    private readonly supabase: SupabaseService,
+    private readonly changeRef: ChangeDetectorRef,
+    private readonly router: Router
+  ) {
+  }
+
+  async onSubmit(): Promise<void> {
+    try {
+      this.loading = true
+      const email = this.loginForm.value.email as string
+      const password = this.loginForm.value.password;
+
+      const { data, error } = await this.supabase.signUpNewUser(email, password)
+      if (data.user?.identities?.length == 0) //kinda hack to check if already signed up
+        await this.supabase.signIn(email, password);
+      else
+        alert("CHECK YOUR EMAIL FOR CONFIRMATION")
+
+      if (error) throw error
+    } catch (error) {
+      if (error instanceof Error) {
+        alert(error.message)
+      }
+    } finally {
+      this.loginForm.reset()
+      this.loading = false
+
+      this.changeRef.detectChanges();
+    }
+  }
+
+  ngOnInit() {
+    this.supabase.authChanges((event, session) => {
+      console.log(event, session);
+      if (event == 'SIGNED_IN')
+        this.router.navigate(['/account']);
+      
+      this.changeRef.detectChanges();
+    })
+  }
+}
+```

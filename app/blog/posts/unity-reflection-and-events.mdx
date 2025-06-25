@@ -1,0 +1,215 @@
+---
+title: 'Unity: MonoBehaviour Extension Scripting Solution (MESS)'
+publishedAt: '2025-06-23'
+summary: 'Reflection is pog'
+tags: 'unity, events, reflection'
+---
+
+There comes a time when a Unity developer either becomes too lazy, or too afraid to touch the spaghetti that they've made. 
+
+They dread having to test the side effects of the tiny change they made to that one big ass MonoBehaviour, it all just seems like such a chore.
+
+But fret not, for a "solution" exists, just that it might further add to the spaghetti if one is not careful.
+
+## Extender Scripts
+Introducing, a possible variant of the Decorator pattern, or what I like to call "MonoBehaviour Extending Hooks" (MEH), or "MonoBehaviour Extension Scripting Solution (MESS).
+
+Simply put, instead of modifying an existing script, that is tightly coupled with all sorts of other behaviours; we instead extend its behaviour by creating a new script that operates on it.
+
+
+## Thought Experiment
+For example, let's say you have some kind of controller class that manipulates sprites, moving them around, playing animations, handling user input, etc.
+
+You might want to temporarily disable the controller's input or other specific functionality when let's say, the game is paused.
+
+Rather than directly adding on or modifying the controller, we can create a GameObject somewhere and attach an extender script, assign the reference to the controller, and let the extender do its work separately from the existing spaghetti.
+
+Assuming that the controller already has a state flag or something similar to control its input, we can simply modify said field using the extender script, performing the logic on the extender script rather than in the controller. 
+
+This, in theory, should help to decouple the new logic from the existing behaviour of the controller, potentially reducing bugs that may arise because of unwanted side effects.
+
+## Reflection
+Going further, we can use reflection to further decouple the extender script from the controller. 
+
+Instead of directly referencing the field we want to modify, we can use reflection to query and mutate the fields of the controller, without directly referencing it in the extender script.
+
+Combine this with serialization, and we can have a generic extender script for modifying fields on the fly.
+
+## Events
+Going even further, we can utilize a message bus, implementing a publisher/subscriber pattern to further decouple the extender script from the controller.
+
+The extender script subscribes to a particuar event, e.g. a global Paused event, and reacts accordingly, setting the input control flag on the controller through reflection.
+
+See [here](/blog/my-favourite-design-pattern) for more about implementing a simple pub/sub event system in Unity.
+
+# Code Examples
+
+## Example Extender script for disabling raycasting
+```C#
+using UnityEngine;
+using UnityEngine.UI;
+
+public class UIRaycasterToggleOnEvent : MonoBehaviour
+{
+    [SerializeField] private string eventName = "GlobalState.Paused";
+    [SerializeField] private GameObject target;
+    [SerializeField] private bool flipState = true;
+
+    SingleEventSubscriber eventSubscriber;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        eventSubscriber = new SingleEventSubscriber(eventName, (data) => {
+            if (!target)
+                return;
+
+            if (target.TryGetComponent(out GraphicRaycaster caster))
+            {
+                if (data is bool)
+                {
+                    bool state = (bool)data;
+                    caster.enabled = flipState ? !state : state;
+                }
+            }
+        });
+    }
+
+    private void OnDestroy()
+    {
+        eventSubscriber.UnSubscribe();
+    }
+}
+```
+
+## Example Extender script for modifying layers
+```C#
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;  
+using UnityEngine.UI;
+
+public class LayerToggleOnEvent : MonoBehaviour
+{
+    [SerializeField] private string eventName = "GlobalState.Paused";
+    [SerializeField] private string layerName = "Ignore Raycast";
+
+    [SerializeField] private GameObject target;
+    [SerializeField] private bool flipState = false;
+    [SerializeField] private bool recursive = true;
+
+    int initialLayer;
+    SingleEventSubscriber eventSubscriber;
+
+    void Start()
+    {
+        if (!target)
+        {
+            Debug.LogError("Missing target!");
+            return;
+        }
+
+        initialLayer = target.layer;
+        eventSubscriber = new SingleEventSubscriber(eventName, (data) => {
+            if (data is bool)
+            {
+                bool state = (bool)data;
+                state = flipState ? !state : state;
+
+                int newLayer = initialLayer;
+                if (state)
+                    newLayer = LayerMask.NameToLayer(layerName);
+
+                if (recursive)
+                    RecursiveSetLayer(target.transform, newLayer);
+                else
+                    target.layer = newLayer;
+            }
+        });
+    }
+    
+    private void RecursiveSetLayer(Transform root, int layer)
+    {
+        for (int i = 0; i < root.childCount; ++i)
+        {
+            RecursiveSetLayer(root.GetChild(i), layer);
+            root.gameObject.layer = layer;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        eventSubscriber.UnSubscribe();
+    }
+}
+```
+
+## Example Extender script for setting fields
+```C#
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class ToggleMemberValueOnEvent : MonoBehaviour
+{
+    public enum ValueType {
+        Integer,
+        Boolean,
+        String
+    }
+
+    [SerializeField] string memberName;
+    [SerializeField] string className;
+    [SerializeField] string value;
+
+    [SerializeField] ValueType valueType = ValueType.Boolean;
+    [SerializeField] GameObject target;
+
+    [SerializeField] string eventName = "GlobalState.Paused";
+    [SerializeField] bool flipState = false;
+
+    SingleEventSubscriber eventSubscriber;
+    object initialValue;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        var klass = target.GetComponent(className) as object;
+        initialValue = klass.GetType().GetField(memberName).GetValue(klass);
+
+        eventSubscriber = new SingleEventSubscriber(eventName, (data) =>
+        {
+            object val = valueType switch
+            {
+                ValueType.Integer => int.Parse(value),
+                ValueType.Boolean => bool.Parse(value),
+                ValueType.String => value,
+                _ => value
+            };
+
+            if (data is bool)
+            {
+                bool state = (bool)data;
+                state = flipState ? !state : state;
+
+                var field = klass.GetType().GetField(memberName);
+
+                if (state)
+                    field.SetValue(klass, val);
+                else
+                    field.SetValue(klass, initialValue);
+
+            }
+        });
+    }
+
+    private void OnDestroy()
+    {
+        eventSubscriber.UnSubscribe();
+    }
+}
+```
+
+All of this decoupling is great and all, but if you're not careful, you could end up with even worse spaghetti than before.
+
+If a developer chooses to use this approach, it might be helpful to have a static class to keep track of all the event names; or implement them as constants, because having too many magic strings can be definitely become a headache to deal with.
