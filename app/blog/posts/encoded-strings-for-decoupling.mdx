@@ -1,0 +1,44 @@
+---
+title: 'Unity: Decoupling Systems using Encoded strings'
+publishedAt: '2025-07-05'
+summary: 'Simple way to pass data in one direction in Unity'
+tags: 'unity, decoupling'
+---
+
+Sometimes, you might have multiple systems that flow in a single direction. If there is no need to update the previous system on the data that was passed down, systems can easily use encoded strings for decoupling.
+
+For example, you might have a system based on MVC architecture, whereby data is passed unidirectionally from the model to the view.
+
+To prevent coupling, instead of having the view query the model/controller, we can simply pass the data required as a string when invoking the view's presentation method.
+
+E.g. You could have some kind of animation system that plays animations corresponding the the string that is passed to it.
+
+## Example Animation Method
+
+```C#
+public override float PlayAnimation(string animString)
+    {
+        if (animString.StartsWith("MyAnimation"))
+        {
+            var args = animString.Split("-");
+            if (args.Length <= 1) //args missing
+                return 0f;
+
+            string paramString = args[1];
+            int[] counts = new int[paramString.Length];
+
+            for (int i = 0; i < paramString.Length; ++i)
+            {
+                counts[i] = int.Parse(paramString[i].ToString());
+            }
+
+            //Do stuff with counts
+        }
+    }
+```
+
+In this short snippet, the PlayAnimation function takes in a string that encodes an array of integers, e.g. "MyAnimation-12345".
+
+The string is parsed, and split into its corresponding components for further processing; apart from the invocation, this function does not reference/touch other systems at all.
+
+To be honest, most of this is just me talking out of my ass, TLDR: You can use strings to pass data in a decoupled way, which can be especially useful when dealing with uni-directional data flow.

@@ -1,0 +1,182 @@
+---
+title: 'Unity: Creating Materials from Textures'
+publishedAt: '2025-06-26'
+summary: 'Making simple surface materials from textures in Unity, using AssetDatabase'
+tags: 'unity, materials, textures, editor'
+---
+
+Coming from my previous article about [batch manipulating images](/blog/image-manipulation-using-magick) using ImageMagick, I'm now faced with the conundrum of converting said textures into materials I can use in my Mahjong game prototype.
+
+On the surface, it's pretty simply, just create a new material for each texture and assign the surface map (diffuse).
+
+# Problem
+
+Unfortunately, I have like 45 textures to go through, and doing that by hand does not sound like fun, so let's spend way more time than necessary automating it instead!
+
+# Solution
+
+Using `AssetDatabase`, we can create a Unity Editor script that exposes a menu item for us to process and assign the texture to the surface map of the default Lit shader, creating a new Material and saving it for each Mahjong Tile texture.
+
+## Editor Script
+```C#
+using UnityEngine;
+using UnityEditor;
+
+public class MaterialCreator
+{
+    [MenuItem("Tools/Create Tile Face Materials")]
+    public static void CreateTileFaceMaterialsLit()
+    {
+        const string tileTexturesDirectoryPath = "Assets/Textures/tiles";
+
+        string[] guids = AssetDatabase.FindAssets("t:texture2D", new[] { tileTexturesDirectoryPath });
+        foreach (string guid in guids)
+        {
+            string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+            Texture2D texture = AssetDatabase.LoadAssetAtPath<Texture2D>(assetPath);
+            Debug.Log("Found Texture: " + texture.name + " at " + assetPath);
+
+            Material newMaterial = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+            newMaterial.color = Color.white;
+            newMaterial.mainTexture = texture;
+            newMaterial.mainTextureOffset = new Vector2(-3.1f, -1.55f);
+            newMaterial.mainTextureScale = new Vector2(4.25f, 4f);
+
+            string savePath = "Assets/Models/Tiles/" + texture.name + ".mat";
+
+            string directoryPath = System.IO.Path.GetDirectoryName(savePath);
+            if (!AssetDatabase.IsValidFolder(directoryPath))
+            {
+                throw new System.Exception("sumding wong meking tile mat, folder no exist");
+            }
+
+            AssetDatabase.CreateAsset(newMaterial, savePath);
+            AssetDatabase.SaveAssets();
+
+            Debug.Log("Material created and saved at: " + savePath);
+        }
+    }
+}
+```
+
+Yes, lots of magic numbers here, but for a prototype, that's no biggie.
+
+## Assigning the Material at runtime
+Now that we have the materials, how are we supposed to go about assigning them to the correct tile?
+
+The easy answer is, use the file name, but to do that, we first need to make a dictionary that maps the file name to the tile type, which is somewhat tedious.
+
+## Retrieving materials using Addressables
+
+Addressables are a way to retrieve resources at runtime in Unity, providing an, in my opinion, less janky way than using the Unity "Resources" system.
+
+Currently, it has to be installed manually as a package, but it really does make life a lot easier.
+
+After installation, I open the Addressables Groups window, create the settings, mark all my tile materials as addressables, assign to a group, and label them accordingly.
+
+Now, we're ready to query and load them at runtime (asynchronously too), truly PogChamp.
+
+Read more about Addressables [here](https://docs.unity3d.com/Packages/com.unity.addressables@2.6/manual/get-started-use-addressable.html).
+
+## Addressables Groups Window
+![Addressables](/images/mahjong/addressables.png)
+
+## Loading Materials from a Label
+```C#
+...
+
+// Assign in Editor or in code
+public string tileMaterialsLabel = "TileMaterial";
+
+// Retain handle to release asset and operation
+private AsyncOperationHandle<IList<Material>> handle;
+
+...
+
+void Start()
+{
+    ...
+    
+    handle = Addressables.LoadAssetsAsync<Material>(tileMaterialsLabel);
+    handle.Completed += Handle_Completed;
+}
+
+```
+
+## Using a class as the Key in a C# Dictionary
+In order to map the tile types to the right material, I need a way to use the tile type and its number or name as the key for the dictionary.
+
+One way I thought to go about is to use the existing Tile class that I have as the key.
+
+To do so, I have to override the GetHashCode() and Equals() methods, it's possible to simply use the [RuntimeHelpers.GetHashCode(Object)](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.runtimehelpers.gethashcode?view=netframework-4.7.2) method.
+
+But that doesn't guarantee that tiles with the same values would be hashed exactly the same way, 
+so instead I came up with a hacky method that simly combines the hash codes of the enum and the number value.
+
+Read more about that kinda stuff [here](https://www.codeproject.com/Articles/1279273/Csharp-Dictionary-GetHashCode-Equals).
+
+## My Tile class
+```C#
+public class Tile
+{
+    public Tile(MahjongTileType tileType, int number)
+    {
+        this.type = tileType;
+        this.number = number;
+    }
+
+    public MahjongTileType type;
+    public int number = 0;
+
+    public override int GetHashCode()
+    {
+        return this.type.GetHashCode() + this.number.GetHashCode();
+    }
+    public override bool Equals(object obj)
+    {
+        return Equals(obj as Tile);
+    }
+
+    public bool Equals(Tile obj)
+    {
+        return obj != null && obj.type == this.type && obj.number == this.number;
+    }
+}
+```
+
+## Setting the Material of a GameObject
+
+Finally, putting it all together, I can finally set the material of each tile accordingly.
+
+```C#
+...
+
+foreach (var item in tilePool)
+{
+    List<Material> materials = new List<Material>();
+    var renderer = item.GetComponent<MeshRenderer>();
+    renderer.GetMaterials(materials);
+
+    if (!tileTypeMateriaKeyMap.TryGetValue(item.tile, out string key))
+        return;
+
+    if (materialsDictionary.TryGetValue(key, out Material newMat))
+    {
+        materials[materials.Count - 1] = newMat;
+        renderer.SetMaterials(materials);
+    }
+    else
+        Debug.LogError("Failed to set Mahjong Tile Material: " + key);
+}
+
+...
+```
+
+# Results
+Below are the fruits of my labour, each tile is correctly assigned the respective material corresponding to its tile type and number.
+
+## Materials
+![Materials](/images/mahjong/materials.png)
+
+## Tiles
+![Mahjong Tiles](/images/mahjong/scene.png)

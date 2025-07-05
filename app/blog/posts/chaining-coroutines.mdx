@@ -1,0 +1,45 @@
+---
+title: 'Unity: Chaining Coroutines'
+publishedAt: '2025-06-29'
+summary: 'Making scripted animations play one after another.'
+tags: 'unity, coroutines, animation'
+---
+
+Sometimes, you want a coroutine to wait for another to finish before it starts, the easy way to do this is to simply yield on the IEnumerator.
+
+## Waiting for a coroutine in another coroutine
+```C#
+public IEnumerator CoroutineFoo() {
+    yield return CoroutineBar();
+
+    //Do stuff
+}
+```
+
+However, what if you want to have multiple coroutines execute one after another?
+
+We can use a simple queue system to achieve this, enqueue the coroutines you want to run in order,
+then flush the queue. The queue flush should also be a coroutine, in order to yield on the queued coroutines.
+
+## Coroutine Queue
+```C#
+public void QueueAnimationCoroutine(IEnumerator enumerator)
+{
+    actionQueue.Enqueue(enumerator);
+}
+
+public IEnumerator CoroutineFlushQueue(Action onComplete)
+{
+    while (actionQueue.Count > 0)
+    {
+        var enumerator = actionQueue.Dequeue();
+        StartCoroutine(enumerator);
+
+        yield return enumerator;
+    }
+
+    onComplete.Invoke();
+}
+```
+
+That's all I got for now.

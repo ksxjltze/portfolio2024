@@ -1,0 +1,176 @@
+---
+title: 'Unity: Sprite Orbiter'
+publishedAt: '2025-07-05'
+summary: 'Simple Sprite VFX using rotation'
+tags: 'unity, vfx, sprite, orbit'
+---
+
+Ever wondered how to make sprites spin around an object? Well, here's the way I do it:
+
+## Sprite Orbiter
+```C#
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class SpriteOrbiter : MonoBehaviour
+{
+    public Transform target;
+    public Vector3 offset = Vector3.zero;
+    public float angle = Mathf.PI / 2f;
+
+    public void ApplyOffset()
+    {
+        transform.position = target.position + offset;
+    }
+
+    // Update is called once per frame
+    void FixedUpdate()
+    {
+        transform.RotateAround(target.position, Vector3.up, angle);
+    }
+}
+```
+
+This simple script is enough, but we can go further to orchestrate the orbitation of multiple sprites simultaneously.
+
+## Sprite Orbit Sorter
+```C#
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class SpriteOrbitSorter : MonoBehaviour
+{
+    public SpriteRenderer spriteRenderer;
+    public float pivotAngle = -90f;
+    public Transform target;
+
+    int backSortingOrder = 100;
+    int frontSortingOrder = 1;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        spriteRenderer = GetComponent<SpriteRenderer>();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        var v = target.position - transform.position;
+        float euler = Vector3.SignedAngle(v, Vector3.right, Vector3.up);
+
+        if (spriteRenderer != null && euler >= pivotAngle)
+            spriteRenderer.sortingOrder = backSortingOrder;
+        else
+            spriteRenderer.sortingOrder = frontSortingOrder;
+    }
+}
+```
+
+Using the signed angle of the vector between the target and the sprite's position, we can determine whether a sprite is supposed to be in front or behind of an object, and adjust its sorting order accordingly to make it appear to disappear behind said object.
+
+## Sprite Orbit Arranger
+```C#
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class SpriteOrbitArranger : MonoBehaviour
+{
+    public List<GameObject> gameObjects;
+    public Transform pivot;
+    public Vector3 offset = Vector3.zero;
+
+    public void Arrange()
+    {
+        float angleOffset = 360f / gameObjects.Count;
+
+        for (int i = 0; i < gameObjects.Count; ++i)
+        {
+            var obj = gameObjects[i];
+            obj.transform.position = pivot.transform.position + offset;
+            obj.transform.RotateAround(pivot.transform.position, Vector3.up, angleOffset * i);
+        }
+    }
+
+    public void AddToOrbit(GameObject obj)
+    {
+        gameObjects.Add(obj);
+    }
+}
+```
+
+This script simply distributes sprites around a circle, to achieve even spacing.
+
+## Sprite Orbit Controller
+```C#
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class SpriteOrbitController : MonoBehaviour
+{
+    public List<Sprite> sprites;
+    public GameObject spritePrefab;
+
+    SpriteOrbitArranger orbitArranger;
+    SpriteOrbiter spriteOrbiter; 
+
+    private void InitOrbitComponents()
+    {
+        if (!TryGetComponent(out orbitArranger))
+            orbitArranger = gameObject.AddComponent<SpriteOrbitArranger>();
+
+        if (!TryGetComponent(out spriteOrbiter))
+            spriteOrbiter = gameObject.AddComponent<SpriteOrbiter>();
+    }
+
+    private void Start()
+    {
+        InitOrbitComponents();
+    }
+
+    public void SetTarget(Transform target)
+    {
+        InitOrbitComponents();
+
+        spriteOrbiter.target = target;
+        orbitArranger.pivot = target;
+    }
+
+    public void ConstructOrbit()
+    {
+        foreach (var sprite in sprites)
+        {
+            var obj = Instantiate(spritePrefab, transform);
+            obj.GetComponent<SpriteRenderer>().sprite = sprite;
+
+            if (!obj.TryGetComponent(out SpriteRenderer spriteRenderer))
+                spriteRenderer = obj.AddComponent<SpriteRenderer>();
+
+            spriteRenderer.sprite = sprite;
+
+            if (!obj.TryGetComponent(out SpriteOrbitSorter sorter))
+                sorter = obj.AddComponent<SpriteOrbitSorter>();
+
+            sorter.target = spriteOrbiter.target;
+            sorter.pivotAngle = 0f;
+
+            orbitArranger.AddToOrbit(obj);
+        }
+
+        orbitArranger.Arrange();
+    }
+}
+```
+
+Finally, we have the orbit controller, which puts everything together.
+
+Yea, this is just a script dump.
+
+## Demo
+<video className="mt-4" autoPlay preload="auto" playsInline muted loop>
+    <source src="/videos/vfx/sprite-orbiting.mp4" type="video/mp4" />
+</video>
