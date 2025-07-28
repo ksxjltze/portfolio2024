@@ -1,0 +1,84 @@
+---
+title: 'Modifying Minecraft Mods with Recaf'
+publishedAt: '2025-07-28'
+summary: 'Minecraft Mod Decompilation and Java Bytecode editing'
+tags: java, minecraft, bytecode, decompiler, recaf
+---
+
+Recently, I've been playing a lot of Minecraft. Specifically, modded Minecraft, using a custom modpack for Cobblemon.
+
+A friend of mine hosts a multiplayer server on the Apex hosting platform, but has given me access to administrate the server in case issues arise.
+
+Unfortunately, issues do arise, and fairly frequently, particularly involving mod crashes.
+
+To fix these, I usually have to either edit player data, or world data, using an Named Binary Tag (NBT) editor.
+
+Doing so however, does not address the root cause of the issue, which is usually caused by the mod developers forgetting to add error handling somewhere.
+
+Modifying a Minecraft mod may seem daunting at first, but is actually pretty easy when using the correct tools.
+
+## Recaf
+One such tool, is [Recaf](https://github.com/Col-E/Recaf) by coley, a modern Java bytecode editor.
+
+Recaf is capable of both decompilation and recompilation, which means that, to some extent, the source code of the mod can be reconstructed and viewed.
+
+Recaf can also deobfuscate code, using various mappings.
+
+Unfortunately, during my adventures, I failed to recompile my edited Java source code, so I had to resort to editing the bytecode directly.
+
+### Recaf GUI
+![Recaf Interface](/images/minecraft/modding/recaf.png)
+
+## Energized Power Crash
+For some reason, the solar panel from the Energized Power mod tried to extract a negative amount of energy from itself, which triggered an unhandled IllegalArgumentException, causing the server to crash.
+
+![Energized Power Crash](/images/minecraft/modding/energized-power-crash.jpg)
+
+To fix this, all one needs to do is clamp the values between 0 and the provided amount, preventing negative values from ever occuring.
+
+The reconstructed source code for the crashing function in question:
+
+![Code Snippet](/images/minecraft/modding/energized-power-code.png)
+
+Unfortunately, after coding in the fix, I failed to compile the modified code due to missing libraries, which I found to be too much of a pain to resolve.
+
+So instead, I resorted to editing the bytecode directly, which is like, assembler/assembly for the Java programming language.
+
+### Original Bytecode Snippet
+![Bytecode Snippet](/images/minecraft/modding/energized-power-bytecode.png)
+
+I don't know Java bytecode, so I enlisted the help of an LLM (Gemini 2.5 Flash) to speed things up, like everyone does these days.
+
+```
+A:
+    line 61
+    lload maxAmount
+    lconst_0
+    lcmp
+    ifge MOD_SKIP_CLAMP
+    lconst_0
+    lstore maxAmount
+MOD_SKIP_CLAMP:
+    lload maxAmount
+    invokestatic net/fabricmc/fabric/api/transfer/v1/storage/StoragePreconditions.notNegative (J)V
+```
+
+And viola, it no longer crashes.
+
+## Cobblemon Crash
+I'll write more about this when I'm in the mood.
+
+## Large Mod
+Modified bytecode fails to run.
+
+## Open-Source
+Source code for cobblemon: [Cobblemon Gitlab](https://gitlab.com/cable-mc/cobblemon/-/tree/1.6.0?ref_type=tags)
+
+## Minecraft modding environment
+- IntelliJ IDEA
+
+## Kotlin
+Compiles to Java bytecode.
+
+## Gradle
+Build and compile to jar file.
