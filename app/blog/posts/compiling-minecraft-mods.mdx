@@ -1,0 +1,169 @@
+---
+title: 'Compiling Minecraft Mods (Fabric)'
+publishedAt: '2025-07-30'
+summary: 'Compiling a Minecraft Mod from Open Source code.'
+tags: java, minecraft, fabric, mod, kotlin
+---
+
+In a previous blog [post](/blog/modifying-minecraft-mods), I wrote about how to modify a Minecraft mod using recaf to edit its bytecode.
+
+In this post, I'll instead go into how to modify a Minecraft mod from open source code instead, using IntelliJ IDEA and Gradle to compile it into a usable jar file.
+
+## Cobblemon Crash
+On the Minecraft server that I play (and manage), we run the Cobblemon, along with a bunch of data packs and addons.
+
+Unfortunately, one of these data packs is incompatible with a specific feature of CobbleCuisine, an addon mod that adds food-related items to Cobblemon.
+
+It would take way too much effort to dig through each datapack one by one to find the offending section, and removing a datapack doesn't sound very fun.
+
+Instead, I opted to try to modify the mod, a few simple null checks should prevent it from crashing, while still allowing the datapack to be included in the server.
+
+## Recaf
+At first, I tried to modify the mod using Recaf to edit its bytecode. 
+
+However, it didn't work for some reason, possibly because the mod is so large, and was originally built for Forge instead of Fabric, which are different mod loaders for Minecraft.
+
+Fortunately, Cobblemon is an open-source mod, meaning that I can edit the source code instead and compile my own version.
+
+Source code for cobblemon: [Cobblemon Gitlab](https://gitlab.com/cable-mc/cobblemon/-/tree/1.6.0?ref_type=tags)
+
+## Modding Environment
+To get started, I used IntelliJ IDEA Community Edition to open a workspace for the mod.
+
+Fortunately for me, I was mostly familiar with IntelliJ IDEA because I used it before to develop Spring applications.
+
+![IntelliJ IDEA](/images/minecraft/modding/ide.png)
+
+First, I had to switch the current branch to the matching version on my server, I did so using the version tag on the mod's Gitlab page.
+
+```git
+git checkout 1.6.1
+```
+
+Then I ran `./gradlew` in the terminal to configure the project (although IntelliJ IDEA usually does this for you automatically), I also had to install Java 21.
+
+## Kotlin
+Cobblemon is a little different from other Minecraft mods, in that it uses Kotlin instead of Java in its source code.
+
+Kotlin is however, interoperable with Java, so this doesn't make too much of a difference when it comes to building the executable.
+
+Although Kotlin comes with built-in null safety, this feature is useless if the developers decide to assert instead, which is what the developers did for the specific feature that is crashing the server.
+
+The specific function that I modified to stop my server from crashing:
+```kotlin
+override fun select(
+    spawner: Spawner,
+    contexts: List<SpawningContext>
+): Pair<SpawningContext, SpawnDetail>? {
+    val selectionData = getSelectionData(spawner, contexts)
+
+    if (selectionData.isEmpty()) {
+        return null
+    }
+
+    // Which context type should we use?
+    val contextSelectionData = selectionData.entries.toList().weightedSelection { getWeight(it.key) * it.value.size }?.value
+    if (contextSelectionData == null) {
+        LOGGER.warn("Failed to select a spawning context for spawner '${spawner.name}'. This might indicate missing or improperly configured spawn data/weights for contexts.")
+        return null // Return null if no context can be selected
+    }
+
+    val spawnsToContexts = contextSelectionData.spawnsToContexts
+    var percentSum = contextSelectionData.percentSum
+
+
+    // First pass is doing percentage checks.
+    if (percentSum > 0) {
+
+        if (percentSum > 100) {
+            LOGGER.warn(
+                """
+                    A spawn list for ${spawner.name} exceeded 100% on percentage sums...
+                    This means you don't understand how this option works.
+                """.trimIndent()
+            )
+            return null
+        }
+
+        /*
+            * It's [0, 1) and I want (0, 1]
+            * See half-open intervals here https://en.wikipedia.org/wiki/Interval_(mathematics)#Terminology
+            */
+        val selectedPercentage = 100 - Random.Default.nextFloat() * 100
+        percentSum = 0F
+        for ((spawnDetail, info) in spawnsToContexts) {
+            if (spawnDetail.percentage > 0) {
+                percentSum += spawnDetail.percentage
+                if (percentSum >= selectedPercentage) {
+                    return info.chooseContext() to spawnDetail
+                }
+            }
+        }
+    }
+
+    val selectedSpawn = spawnsToContexts.entries.toList().weightedSelection { it.value.highestWeight }
+    if (selectedSpawn == null) {
+        LOGGER.warn("Failed to select a spawn detail for spawner '${spawner.name}'. This might indicate missing or improperly configured spawn data/weights for spawn details.")
+        return null // Return null if no spawn detail can be selected
+    }
+
+    return selectedSpawn.value.chooseContext() to selectedSpawn.key
+}
+```
+
+All I needed to do was to add a few null checks.
+
+But shouldn't Kotlin prevent these kind of NullPointerException(s)??!!
+
+Well that's not what the crash report says:
+
+```Java
+---- Minecraft Crash Report ----
+// I just don't know what went wrong :(
+
+Time: 2025-07-18 07:07:40
+Description: Exception in server tick loop
+
+java.lang.NullPointerException
+	at knot//com.cobblemon.mod.common.api.spawning.selection.FlatContextWeightedSelector.select(FlatContextWeightedSelector.java:148)
+	at knot//com.cobblemon.mod.common.api.spawning.spawner.AreaSpawner.run(AreaSpawner.java:96)
+	at knot//com.cobblemon.mod.common.api.spawning.spawner.TickingSpawner.tick(TickingSpawner.java:71)
+	at knot//com.cobblemon.mod.common.api.spawning.SpawnerManager.onServerTick(SpawnerManager.java:71)
+	at knot//com.cobblemon.mod.common.events.ServerTickHandler.onTick(ServerTickHandler.java:20)
+	at knot//com.cobblemon.mod.common.Cobblemon.initialize$lambda$21(Cobblemon.java:395)
+	at knot//com.cobblemon.mod.common.api.reactive.ObservableSubscription.handle(ObservableSubscription.java:16)
+	at knot//com.cobblemon.mod.common.api.reactive.SimpleObservable.emit(SimpleObservable.java:39)
+	at knot//com.cobblemon.mod.fabric.CobblemonFabric.initialize$lambda$12(CobblemonFabric.kt:435)
+	at knot//net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.lambda$static$2(ServerTickEvents.java:43)
+	at knot//net.minecraft.server.MinecraftServer.handler$zoe000$fabric-lifecycle-events-v1$onEndTick(MinecraftServer.java:4163)
+	at knot//net.minecraft.server.MinecraftServer.tick(MinecraftServer.java:940)
+	at knot//net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:697)
+	at knot//net.minecraft.server.MinecraftServer.method_29739(MinecraftServer.java:281)
+	at java.base@21.0.5/java.lang.Thread.run(Thread.java:1583)
+```
+
+I don't know exactly why, but I believe assertions like these are a possible cause:
+```
+    fun chooseContext() = spawningContexts.keys.toList().weightedSelection { spawningContexts[it]!! }!!
+```
+
+<br></br>
+
+```
+protected fun getSelectionData(...){
+    ...
+
+    val contextType = SpawningContext.getByClass(ctx)!!
+
+    ...
+}
+```
+
+## Compiling the Jar file
+Conveniently, running `./gradlew build` will build and compile the jar file for you. After which it can be found under "/build/libs/"
+
+![Project Structure](/images/minecraft/modding/file-structure.png)
+
+## More Resources
+- [Fabric Tutorial](https://wiki.fabricmc.net/tutorial:setup)
+- [Compiling a Jar](https://www.reddit.com/r/fabricmc/comments/qumt5l/how_to_compile_a_file_to_jar/)
