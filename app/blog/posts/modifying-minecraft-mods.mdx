@@ -1,6 +1,6 @@
 ---
 title: 'Modifying Minecraft Mods with Recaf'
-publishedAt: '2025-07-28'
+publishedAt: '2025-08-02'
 summary: 'Minecraft Mod Decompilation and Java Bytecode editing'
 tags: java, minecraft, bytecode, decompiler, recaf
 ---
@@ -65,5 +65,47 @@ MOD_SKIP_CLAMP:
 
 And viola, it no longer crashes.
 
-## More Resources
+## More Resources for Recaf
 - [User Documentation](https://recaf.coley.software/user/install/via-launcher.html)
+
+## BONUS: Connecting to a Minecraft server running on WSL locally
+So I wanted to test out my changes in a local server, so I don't accidentally brick the live one.
+
+After copying over all the files, I tried to run the server.jar from the Windows command line.
+
+Frustratingly, it just doesn't work on Windows, and I don't have a Linux server just lying around (I should get one), so I had to resort to using WSL instead.
+
+Running the server works like a charm, but connecting to it from the Minecraft Client is another hurdle.
+
+Unfortunately, one does not simply connect to a server running on WSL using localhost from Windows.
+
+Instead, I had to find the IP Address for the WSL instance, using the command: "wsl hostname -I".
+
+Read more about that [here](https://learn.microsoft.com/en-us/windows/wsl/networking) (Microsoft Docs).
+
+## Final Step
+There's one more step before we can actually connect to our Minecraft server, we have to configure the Windows Firewall (sigh).
+
+So here's some vibe advice from Gemini:
+
+## Configure Windows Firewall (Essential!):
+
+Even for local connections, Windows Firewall might block the connection. You need to create an inbound rule to allow traffic on the Minecraft port (default 25565).
+
+Open "Windows Defender Firewall with Advanced Security" (search for it in the Start Menu).
+
+In the left pane, select "Inbound Rules."
+
+In the right pane, click "New Rule..."
+
+Select "Port" and click "Next."
+
+Choose "TCP" and enter 25565 (or your custom port) in "Specific local ports." Click "Next."
+
+Select "Allow the connection" and click "Next."
+
+Choose the network profiles where this rule should apply (e.g., "Private" for your home network). Click "Next."
+
+Give the rule a name (e.g., "Minecraft WSL Server") and an optional description. Click "Finish."
+
+And we're done.

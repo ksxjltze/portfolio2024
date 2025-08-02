@@ -1,7 +1,7 @@
 ---
 title: 'Tower of Doro: A 2D online WebGPU game'
 publishedAt: '2025-05-29'
-updatedAt: '2025-06-22'
+updatedAt: '2025-08-02'
 summary: 'World of Doro'
 tags: 'game, webgpu, doro, angular'
 image: '/images/tower-of-doro/thumbnail.png'
@@ -12,6 +12,11 @@ Making games on the web these days is incredibly easy, so let's make it difficul
 A 2D game shouldn't be too difficult, right?
 
 Unfortunately, because we're starting with nothing but WebGPU, we also need a game engine to do anything. So let's make one in TypeScript!
+
+## Game Concept
+It's just Doro doing random things. I love Doro. Doro is Love. Doro is Life. Doro is Eternal. Doro has descended to bless this world.
+
+Anyway, I'm more of an engine programmer than a game developer in most cases, so we'll see what happens with this project.
 
 ## Stuff needed from/for/using WebGPU
 - Vertex Buffers
@@ -151,6 +156,8 @@ Doro collects Doro Particles™ (DP) from the void passively, and can upgrade he
 
 After that, I'll probably implement some simple chat and multiplayer using WebSockets.
 
+Update: Nevermind.
+
 **July 3rd 2025** - Going 2.5D
 After some deliberation, I've decided to upgrade the engine to do full-on 3D. The art direction for the game however, will remain somewhat pixel-style, going towards something like Octopath Traveller or Tribe Nine.
 
@@ -158,12 +165,39 @@ Most likely, characters will remain 2D, using billboarding to always face the ca
 
 Either way, to start with this change, I have to add perspective projection to my current rendering pipeline.
 
+**August 2nd 2025** - WASM
+
+After a few weeks of sickness, crunching time working on Balaspire, a lot of Minecraft, horse game addiction, and a general reluctance to deal with model loading, I've finally returned to this project.
+
+Up next is loading models, because what's the point of going 3D if you're just going to use primitive cubes.
+
+My chosen method for loading models is using the GLTF file format. Unfortunately, this does mean that I need to somehow find or write a GLTF Loader.
+
+### ThreeJS
+At first, I thought of using the three.js GLTFLoader, but then it does seem kind of overkill to install the entire three.js package just to use its loader.
+
+Also, the entire point of this project is to use WebGPU from scratch instead of relying on three.js, soooo, I decided to go with another approach.
+
+### C++
+I thought of using some standalone GLTF loader package, but then an idea hit me, why not use a C++ loader, which is likely far more optimized anyway.
+
+To do so, I need to build the C++ source to WASM, probably with some binding code in between.
+
+### TinyGLTF
+My final choice of loader landed on [TinyGLTF](https://github.com/syoyo/tinygltf).
+
+Now, TinyGLTF does have an option to compile to WASM, however, it's using WASI, which doesn't provide JavaScript bindings.
+
+I don't know enough about WASM to determine if WASI will work for my project, but it seems like a real pain.
+
+So instead, let's use Emscripten to create our own port, you can find my experimental WIP implementation [here](https://github.com/ksxjltze/webGLTF).
+
 ## TODO:
 A lot..
 
 STAY TUNED FOR THE BEST DORO GAME YOU'VE EVER SEEN (from me).
 
-## Resources:
+## WebGPU Resources:
 - [The Holy Grail of WebGPU Learning (JavaScript)](https://webgpufundamentals.org/webgpu/lessons/)
 - [Mozzila WebGPU API Docs](https://developer.mozilla.org/en-US/docs/Web/API/WebGPU_API)
 - [WebGPU Specification](https://www.w3.org/TR/webgpu/)
