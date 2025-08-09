@@ -3,6 +3,7 @@ title: 'Mixing Minecraft Mod Behaviour with Mixins'
 publishedAt: '2025-08-09'
 summary: 'How to write a mixin for another Minecraft mod'
 tags: 'neoforge, minecraft, mod, fabric'
+image: /images/minecraft/modding/testing.png
 ---
 
 Have you ever wished to change how parts of Minecraft worked? Or even just tweak another Minecraft mod a little?
@@ -26,8 +27,8 @@ It does however, require you to know how to edit Java bytecode, which might not 
 
 Read more about how I used this method to fix a crash here: [Modifying Minecraft Mods with Recaf](/modifying-minecraft-mods.mdx).
 
-## Option 2: Write a new mod
-This method is always relatively simple, but requires much more setup than directly editing the bytecode. Depending on the behaviour you wish to add, this could be extremely easy, or difficult
+## Option 2: Write a new mod from scratch
+This method is relatively simple, but requires much more setup than directly editing the bytecode. Depending on the behaviour you wish to add, this could be extremely easy, or extremely difficult.
 
 There are lots of hooks and events that one can use to add behaviour, but I won't go into detail here.
 
@@ -36,16 +37,20 @@ I recommend diving into the [Neoforge Documentation](https://docs.neoforged.net/
 E.g. See [Living Entities](https://docs.neoforged.net/docs/entities/livingentity) on how to use Events with entities.
 
 ## Option 3: Mixins
-This method seems to be more flexible and powerful, allowing developers to directly inject behaviour into another class. Very convenient.
+This method seems to be the most flexible and powerful, allowing developers to directly inject behaviour into another class. Very convenient.
 
 It is however, a bit of a headache. In this article, I will be focusing on this method, as it's the one I'm using for my particular use case.
+
+Technically I'm still writing a new mod, just that I'm injecting code into an existing class instead of writing something entirely from scratch.
 
 # Project: RPG Gun Scaling
 A simple, almost toy, project to modify the damage output of a particular mod's items: [Vic's Point Blank](https://modrinth.com/mod/vics-point-blank)
 
-This mod adds guns, but they don't scale with RPG attributes, which means the guns tickle mobs and are basically useless. The simple solution is to go into the mod's config file and just up all the damage values, but that's lame and doesn't scale nicely.
+This mod adds guns, but they don't scale with RPG attributes, which means the guns tickle mobs and are basically useless in an RPG modpack. The simple solution is to go into the mod's config file and just up all the damage values, but that's lame and doesn't scale nicely.
 
 So instead, what if I added a mod that makes bullets actually scale with attributes? Like Attack Damage, Critical Damage, Attack Speed, etc.
+
+For now, let's focus on making the hit damage scale with the Attack Damage attribute of the player, sounds simple don't it? Well we're about to find out.
 
 ## Mod Loaders
 To get started, I need to learn how to even write a Minecraft mod.
@@ -54,8 +59,10 @@ There are two big mod loaders that are the go-to for Minecraft modding: Fabric a
 
 Fabric is more perfomant and lightweight, and is typically more up-to-date with the latest versions of Minecraft.
 
-## Compat Layer
-However, online consensus seems to lean towards Neoforge for larger mods, which also happens to be the mod loader that I'm using for my Minecraft server.
+Neoforge however, offers a ton more hooks and APIs for modders to work with. Either one should work well for our current needs however.
+
+## Compatibility Layer
+Online consensus seems to lean towards Neoforge for larger mods, which also happens to be the mod loader that I'm currently using for my Minecraft server.
 
 Fortunately, thanks to other amazing modders, compatibility layers between Fabric and Neoforge exist, such as (Sinytra Connector)[https://modrinth.com/mod/connector].
 
@@ -63,22 +70,28 @@ This means that we can use Fabric mods (and code) with the Neoforge mod, giving 
 
 This is especially useful because the Fabric API has better Mixin support, which lets us do cool and funny things.
 
-## Initial Setup
-Having to write Java code means that I'll be using my go-to Java IDE: [IntelliJ IDEA](https://www.jetbrains.com/idea/).
+**Update**: Turns out we might not need the connector mod, since Mixins are actually already included in Neoforge.
+
+Read more about that here: [The state of Mixins on (Neo)Forge](https://github.com/Sinytra/Connector/discussions/383)
+
+## Environment and Project Setup
+Having to write Java code means that I'll be using my go-to Java IDE, which I used extensively for Web Development with Spring: [IntelliJ IDEA](https://www.jetbrains.com/idea/).
 
 Built-in gradle configuration and build support means a lot less headache for the little ol developer. Dealing with dependencies and the whole building process from scratch is never fun (looking at you CMAKE).
 
-## Template
+## Mod Project Template
 Conveniently, Neoforge provides a handy little [Mod Generator](https://neoforged.net/mod-generator/) to help us get started with a new project.
 
 ![Mod Generator Page](/images/minecraft/modding/mod-gen.png)
 
 The options seem pretty straightforward, fill in your Mod name, package name, Minecraft version, add mixin support, and you're good to go.
 
+The mod generator gives you a nice zip file to uncompress somewhere, which we can then open as a folder or workspace using IntelliJ IDEA.
+
 ## Dependencies
 I'm writing a mod to modify another mod, so the only dependency I really need is said mod (and probably its dependencies too).
 
-Anyway, the simplest way to add the dependency is to just link the .jar file.
+Anyway, the simplest way to add the dependency for compile-time use is to just link the .jar file.
 
 I created a new directory called "libs" in the root folder, then put the dependency .jar file into it.
 
@@ -98,7 +111,9 @@ Finally, we can get started with creating our mixin.
 
 To start things off, let's try something simple, like printing a Hello World message during the construction of some class.
 
-Here's the version using a hardcoded magic string to define the Mixin target:
+With practically zero working knowledge about Minecraft Modding and Mixins, this starter code is based on the example [here](https://github.com/FabricMC/fabric-example-mod/blob/master/src/main/java/net/fabricmc/example/mixin/ExampleMixin.java).
+
+Anyways, here's the version using a hardcoded magic string to define the Mixin target:
 ```java
 package com.ksxjltze.rpg.scaling.guns.mixin;
 
@@ -130,7 +145,7 @@ public class HitScanMixin {
 }
 ```
 
-Not much of a difference, but it could save time finding bugs.
+Not much of a difference, frankly speaking, but it could save time finding potential bugs, you never know with magic strings.
 
 ## Debugging and Testing
 Select the client configuration, then just click the Run button, ez pz.
@@ -146,10 +161,10 @@ The answer, as usual, boils down to whether the mod is open source.
 
 If it is, good, we can just yoink the source code and fetch the method references from there.
 
-Otherwise, well I guess we'll just have to decompile the jar file.
+Otherwise, well I guess we'll just have to decompile the jar file. Fortunately for us, InteliJ IDEA can do that for us. Simply add the .jar file to the project workspace and go to town with it.
 
 ## Selectors
-These are a major pain in the butt, but they're not so difficult once you get the hang of it.
+These are a major pain in the butt to grasp initially, but they're not so difficult once you get the hang of it.
 
 We need these in order to tell Mixins where they should go to actually change things, yadda yadda Java JVM reference name thingies.
 
@@ -172,7 +187,7 @@ To actually understand how the Mixins work, I highly recommend reading about the
 
 SSTLDR: Java Bytecode Magic + Duck Typing
 
-## Decompilation with IntelliJ IDEA
+## Decompilation and Copying Mixin References
 Thankfully, IntelliJ IDEA comes lots of useful tools, including ways to copy the Mixin reference and stuff from decompiled code.
 
 ![Copy Mixin Reference](/images/minecraft/modding/copy-mixin-ref.png)
@@ -213,7 +228,7 @@ public abstract class HitScanMixin extends Item {
 1. If the method you're injecting into has a return type that isn't "void", you **MUST** use `CallbackInfoReturnable<T>` instead of `CallbackInfo`.
 2. You don't need to use fancy descriptors or signatures to specify the method, just use the function name if its unique.
 3. Extend the base class, well you don't have to, but it helps.
-4. Don't be lazy, read the docs, vibes only get you so far.
+4. Don't be lazy, read the docs, vibes can only get you so far.
 5. Take a break when your eyes start glazing over.
 6. Don't forget what a callback does.
 
@@ -229,18 +244,22 @@ public abstract class HitScanMixin extends Item {
 
 Let's make our Mixin actually do something useful. Here, we replace the `@Inject` decorator with a `@ModifyVariable` decorator, allowing us to modify the `adjustedDamage` local variable and set its value to 10000.
 
-Effectively, we can now one shot any mob, very cool.
+Effectively, we can now one shot any mob with a gun, very cool.
 
 Reference: [ModifyVariable](https://jenkins.liteloader.com/view/Other/job/Mixin/javadoc/index.html?org/spongepowered/asm/mixin/injection/ModifyVariable.html).
 
 ## Using Attributes
 Finally, we're getting somewhere. Onto our original goal, to make the gun damage scale with certain attributes.
 
-Now, how in the world are we going to get the attributes that we need.
+Now, how in the world are we going to get the attributes that we need?
 
 With another Mixin handler method of course, this time, we'll stick with the basic `Inject()` decorator, and capture the variables we need instead of modifying them.
 
-Injecting with Local Capture:
+*Note*: Don't forget to set the injection order, we want to get the value of the attribute BEFORE we use it to modify the damage variable.
+
+We can just store the attribute value in a local class member before using it in our `@ModifyVariable` handler. Like `damageModifier`.
+
+## Injecting with Local Capture:
 ```java
     @Inject(method = "hurtEntity", at = @At("HEAD"), locals = LocalCapture.CAPTURE_FAILEXCEPTION)
     public void onHurtEntity(LivingEntity player, EntityHitResult arg1, Entity arg2, ItemStack arg3, CallbackInfoReturnable<Float> cir) {
@@ -252,7 +271,7 @@ Injecting with Local Capture:
 1. Fetch correct signature by setting `locals = LocalCapture.PRINT` in the decorator.
 2. Update Function Signature to match the given console output.
 3. Set `locals` to LocalCapture.CAPTURE_FAILEXCEPTION, or one of the other capture options.
-4. Profit
+4. Profit.
 
 Reference: [Inject](https://jenkins.liteloader.com/view/Other/job/Mixin/javadoc/index.html?org/spongepowered/asm/mixin/injection/Inject.html)
 
