@@ -1,0 +1,143 @@
+---
+title: 'Caching Static Data with GitHub Pages'
+publishedAt: '2025-08-06'
+summary: 'How to fetch from firestore and write it to Github Pages using Github Actions and stuff'
+tags: 'gcp, cloud, html, static, data, db, firestore'
+---
+
+Let's say you want to fetch data that is updated weekly, the most straightforward way would of course be to just cache it in a database, and do a query whenever you need said data.
+
+However, a more fun, and arguably cost-effective method, would be to store the data in a static format somewhere, like a .json file or HTML file.
+
+Fortunately for us, Github Pages is a thing, so what we can do, is to write a simple function somewhere to query and process the data that we need, and then deploy it to Github Pages using a Github Actions workflow.
+
+## Query API
+First things first, we need some sort of API to query our database.
+
+For this project, I'll just use a Node.js serverless function that runs on GCP Cloud Run, querying a Firestore DB.
+
+## Sample Serverless GET Endpoint (Not Tested)
+```js
+const functions = require('@google-cloud/functions-framework');
+const { Firestore } = require('@google-cloud/firestore');
+const jwt = require('jsonwebtoken');
+
+require('dotenv').config()
+
+const JWT_SECRET = process.env.JWT_SECRET ?? '';
+const COLLECTION_NAME = "FOO"
+const DB_NAME = process.env.DB_NAME ?? "(default)";
+
+function checkAuthHeader(req) {
+    const authHeader = req.headers.authorization;
+
+    if (typeof authHeader === 'undefined') {
+        throw new Error('Authorization header is missing');
+    }
+
+    const tokenParts = authHeader.split(' ');
+    if (tokenParts.length !== 2 || tokenParts[0] !== 'Bearer') {
+        throw new Error('Invalid Authorization header format. Expected "Bearer <token>"');
+    }
+
+    const token = tokenParts[1];
+    return jwt.verify(token, JWT_SECRET);
+}
+
+const validateRequest = (req, res) => {
+    // Only accept GET
+    if (req.method !== 'GET') {
+        console.log('Request is not GET!');
+        res.status(400).send('Only GET requests are allowed.');
+        return null;
+    }
+
+    let decodedData;
+    try {
+        decodedData = checkAuthHeader(req);
+    } catch (e) {
+        console.log('Authentication error:', e.message);
+        res.status(401).send(e.message); // Use 401 for unauthorized access
+        return null;
+    }
+
+    return decodedData;
+};
+
+const getWeeklyData = async (req, res) => {
+    const data = validateRequest(req, res);
+    if (!data) return;
+
+    let firestore = new Firestore({
+        projectId: 'project',
+        databaseId: DB_NAME
+    });
+
+    const dbRef = firestore.collection(COLLECTION_NAME);
+    const snapshot = await dbRef
+        .limit(100)
+        .get();
+
+    if (snapshot.empty) {
+        console.log('No matching documents.');
+        res.status(200).send("No data found.");
+        return;
+    }
+
+    console.log(`Found ${snapshot.size} documents in collection ${COLLECTION_NAME}`);
+    res.status(200).send(JSON.stringify(snapshot.docs));
+}
+
+functions.http('getWeeklyData', getWeeklyData);
+```
+
+## Github Actions workflow
+```yaml
+name: Overwrite some file
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal access token.
+          fetch-depth: 0 # otherwise, there would be errors pushing refs to the destination repository.
+      - name: Fetch data with curl
+        id: fetch-data
+        env:
+          JWT_TOKEN: ${{ secrets.JWT_TOKEN }} # Access the JWT token from secrets
+          WEEKLY_ENDPOINT: ${{ secrets.WEEKLY_ENDPOINT }}
+        run: |
+          echo "CURL_OUTPUT=$(curl -X GET -H "Authorization: Bearer $JWT_TOKEN" "$WEEKLY_ENDPOINT")" >> $GITHUB_OUTPUT
+      - name: Overwrite file
+        uses: "DamianReeves/write-file-action@master"
+        with:
+          path: ./weekly.json
+          write-mode: overwrite
+          contents: |
+            ${{ steps.fetch-data.outputs.CURL_OUTPUT }}
+      - name: Commit files
+        run: |
+          git add .
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git commit -a -m "Add changes"
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
+```
+
+This workflow sends a GET request to query endpoint, then writes it to a .json file, before pushing it to the repository (which will trigger a deployment).
+
+That's all folks, now all you need is something to trigger the Github Workflow every week, and we're golden.
