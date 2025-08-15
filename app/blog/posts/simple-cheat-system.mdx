@@ -1,0 +1,559 @@
+---
+title: 'Unity: Simple Cheat System'
+publishedAt: '2025-08-15'
+summary: 'Simple Cheat Commands'
+tags: 'unity, cheats'
+---
+
+Testing a game can be really tedious without cheats, nobody wants to grind through half an hour of levels just to test a specific feature.
+
+The simplest way to go about this is to hard-code a cheat, perhaps using hotkeys or a special menu, but that can become quite tedious too.
+
+A more flexible, modular method would be to implement some sort of command system or cheat console, kinda like Minecraft's "give" or "tp" commands.
+
+## Semi-Declarative Programming
+Implementing commands can be as trivial as storing the user's input, then matching it with a bunch of strings, like in a big switch case or if else chain.
+
+Such a method is extremely ugly and inelegant however, in my humble opinion. So instead, I'll opt to write my cheats in a more "declarative" way, using Dictionaries and Actions to do so.
+
+### Example Cheats Enum
+We'll start with an enum describing all the Cheats we want to have:
+```C#
+enum CheatKey
+{
+    None,
+    ToggleCheats,
+    SkipBattle,
+    InstantWin,
+    InstantLose,
+    GiveMoney,
+    GiveItem
+};
+```
+
+### Example Cheat Name Table
+We'll map the enum to a cheat name table:
+```
+static readonly ReadOnlyDictionary<CheatKey, string> CheatNameTable = new(new Dictionary<CheatKey, string>() {
+    { CheatKey.ToggleCheats, "godmode" },
+    { CheatKey.SkipBattle, "skip" },
+    { CheatKey.InstantWin, "allyourbasearebelongtous" },
+    { CheatKey.InstantLose, "somebodysetusupthebomb" },
+    { CheatKey.AddMoney, "greedisgood" },
+    { CheatKey.GiveItem, "give" },
+});
+```
+
+Add a helper to fetch cheat names from enum values:
+```C#
+const string INVALID_CHEAT_NAME = "INVALID";
+
+static string CheatName(CheatKey key)
+{
+    try
+    {
+        return CheatNameTable[key];
+    }
+    catch
+    {
+        return INVALID_CHEAT_NAME;
+    }
+}
+```
+
+### Example Cheat Class
+Then maybe we can have a Cheat class to store the behaviour we want:
+
+```C#
+class Cheat
+{
+    public CheatKey key;
+    public string name;
+    public Action<object> action;
+    public Predicate<Cheat> predicate;
+
+    public Cheat(CheatKey key, Action<object> action, Predicate<Cheat> predicate = null)
+    {
+        this.key = key;
+        this.name = CheatName(key);
+        this.action = action;
+        this.predicate = predicate;
+    }
+}
+```
+
+This can be extended to use the Command pattern later (for Undo/Redo/Etc.), but I'll keep things simple for now.
+
+### Cheat Table
+Putting it all together, we can register cheats in a dictionary, using the cheat key, cheat name, actions and predicates to define the cheat's logic, behaviour and possible preconditions.
+
+```C#
+static bool cheatMode = false;
+
+static Tuple<string, Cheat> RegisterCheat(CheatKey key, Action<object> action, Predicate<Cheat> predicate = null)
+{
+    return new(CheatName(key), new(key, action, predicate));
+}
+
+static readonly ReadOnlyDictionary<string, Cheat> CheatTable = new (new DictionaryTupleInitializer<string, Cheat>() {
+    RegisterCheat(CheatKey.ToggleCheats, (_) => {
+        cheatMode = !cheatMode;
+        UISFXPlayer.Play_SomeSound();
+
+        Debug.Log("CHEATS TOGGLED!");
+    }),
+
+    RegisterCheat(CheatKey.SkipBattle, (_) => {
+        GameManager.SkipBattle();
+        UISFXPlayer.Play_SomeSound();
+    }),
+
+    RegisterCheat(CheatKey.InstantWin, (_) => {
+        GameManager.currentBattle.enemy.TakeDamage(1000000); 
+    }),
+
+    RegisterCheat(CheatKey.InstantLose, (_) => {
+        GameManager.player.TakeDamage(1000000);
+    }),
+
+    RegisterCheat(CheatKey.AddMoney, (_) => {
+        GameManager.player.money += 1000;
+        UISFXPlayer.Play_Buy(); 
+    }),
+});
+```
+
+### Cheats with Arguments
+Here's an example of a cheat using multiple arguments (with helper):
+```
+static List<string> GetCheatArgsOrDefault(object data, int expectedCount, string defaultValue)
+{
+    List<string> argsList = new(expectedCount);
+    for (int i = 0; i < expectedCount; ++i)
+    {
+        argsList.Add(defaultValue);
+    }
+
+    if (data is string[])
+    {
+        var args = (string[])data;
+        int argCount = Math.Min(expectedCount, args.Length);
+
+        for (var i = 0; i < argCount; i++)
+        {
+            argsList[i] = args[i];
+        }
+    }
+
+    return argsList;
+}
+
+...
+RegisterCheat(CheatKey.GiveItem, (data) => {
+    var args = GetCheatArgsOrDefault(data, 4, "");
+    var (cheatName, itemName, quantity, target) = (args[0], args[1], args[2], args[3]);
+
+    if (itemName == "")
+        return;
+
+    UISFXPlayer.Play_SomeSound();
+    GameManager.GiveItem(target, new Item(itemName, quantity));
+}),
+...
+```
+
+### Update Loop
+Finally, we need to have an update loop to check and store the user's input, as well as to dispatch the corresponding cheat.
+```
+void CheckCheat(string enteredText)
+{
+    enteredText = enteredText.ToLower().Trim();
+    var args = enteredText.Split(' ');
+
+    TryExecuteCheat(args[0], args);
+
+    commandHistory.Add(enteredText);
+    selectedCommandIndex = commandHistory.Count;
+}
+
+static bool TryExecuteCheat(string name, string[] args)
+{
+    var success = CheatTable.TryGetValue(name, out var cheat);
+    if (success && name == cheat.name)
+    {
+        if (cheat.predicate == null)
+        {
+            cheat.action.Invoke(args);
+            return success;
+        }
+
+        if (cheat.predicate.Invoke(cheat))
+            cheat.action.Invoke(args);
+    }
+
+    return success;
+}
+
+void Update()
+{
+    if (UnityEngine.EventSystems.EventSystem.current != null &&
+        UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject != null)
+    {
+        return;
+    }
+
+    foreach (char c in Input.inputString)
+    {
+        if (c == '\b')
+        {
+            if (inputBuffer.Length > 0)
+                inputBuffer = inputBuffer.Substring(0, inputBuffer.Length - 1);
+        }
+        else if (c == '\n' || c == '\r')
+        {
+            CheckCheat(inputBuffer);
+            inputBuffer = "";
+        }
+        else
+        {
+            inputBuffer += c;
+            // Optional: limit buffer length
+            if (inputBuffer.Length > 64)
+                inputBuffer = inputBuffer.Substring(inputBuffer.Length - 64);
+        }
+    }
+
+    if (cheatMode)
+    {
+        if (Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            selectedCommandIndex = Math.Clamp(selectedCommandIndex - 1, 0, commandHistory.Count - 1);
+            inputBuffer = (selectedCommandIndex) < commandHistory.Count ? commandHistory[selectedCommandIndex] : inputBuffer;
+        }
+        else if (Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            selectedCommandIndex = Math.Clamp(selectedCommandIndex + 1, 0, commandHistory.Count - 1);
+            inputBuffer = (selectedCommandIndex) >= 0 ? commandHistory[selectedCommandIndex] : inputBuffer;
+        }
+    }
+}
+```
+
+### Cheat Console
+A simple way to render a cheat console of some sorts would be to use IMGUI:
+
+```C#
+private void OnGUI()
+{
+    if (!(cheatMode))
+        return;
+
+    int windowX = 64;
+    int windowY = 64;
+
+    int windowWidth = 512;
+    int windowHeight = 512;
+
+    int inputHeight = 32;
+
+    int itemWidth = windowWidth;
+    int itemHeight = 32;
+    int itemOffsetX = 4;
+    int itemOffsetY = itemHeight / 2;
+
+    GUI.Box(new Rect(windowX, windowY, windowWidth, windowHeight), "");
+    for (int i = 0; i < commandHistory.Count; i++)
+    {
+        var command = commandHistory[i];
+        GUI.Label(new Rect(windowX + itemOffsetX, windowY + itemOffsetY * i, itemWidth, itemHeight), command);
+    }
+    GUI.TextField(new Rect(windowX, windowHeight + inputHeight / 2, windowWidth, inputHeight), inputBuffer);
+}
+```
+
+This renders a simple window, showing the current input and previous commands.
+
+## Final Boilerplate Class
+```
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using UnityEngine;
+
+public class CheatController : MonoBehaviour
+{
+	public static bool cheatMode = false;
+
+	string inputBuffer = "";
+	static Dictionary<string, Action> closures = new();
+	static List<string> commandHistory = new();
+	static int selectedCommandIndex = 0;
+
+    //Cheat MAPPING START
+    enum CheatKey
+	{
+		None,
+		ToggleCheats
+	};
+
+	const string INVALID_CHEAT_NAME = "INVALID";
+
+	static string CheatName(CheatKey key)
+	{
+		try
+		{
+			return CheatNameTable[key];
+        }
+		catch
+		{
+			return INVALID_CHEAT_NAME;
+		}
+	}
+
+	static bool TryGetCheatArg(object data, out string cheatName, out string arg)
+	{
+        cheatName = "";
+		arg = "";
+
+        if (data is string[])
+		{
+			var args = (string[])data;
+			if (args.Length < 2)
+				return false;
+
+			cheatName = args[0];
+            arg = args[1];
+
+			return true;
+		}
+
+		return false;
+	}
+
+	static List<string> GetCheatArgsOrDefault(object data, int expectedCount, string defaultValue)
+	{
+		List<string> argsList = new(expectedCount);
+		for (int i = 0; i < expectedCount; ++i)
+		{
+			argsList.Add(defaultValue);
+		}
+
+		if (data is string[])
+		{
+			var args = (string[])data;
+            int argCount = Math.Min(expectedCount, args.Length);
+
+            for (var i = 0; i < argCount; i++)
+            {
+				argsList[i] = args[i];
+            }
+        }
+
+		return argsList;
+	}
+
+    class Cheat
+	{
+		public CheatKey key;
+		public string name;
+		public Action<object> action;
+		public Predicate<Cheat> predicate;
+
+		public Cheat(CheatKey key, Action<object> action, Predicate<Cheat> predicate = null)
+		{
+			this.key = key;
+			this.name = CheatName(key);
+			this.action = action;
+			this.predicate = predicate;
+		}
+	}
+
+	static readonly ReadOnlyDictionary<CheatKey, string> CheatNameTable = new(new Dictionary<CheatKey, string>() {
+		{ CheatKey.ToggleCheats, "godmode" }
+	});
+
+    static Tuple<string, Cheat> RegisterCheat(CheatKey key, Action<object> action, Predicate<Cheat> predicate = null)
+	{
+		return new(CheatName(key), new(key, action, predicate));
+	}
+
+	static readonly ReadOnlyDictionary<string, Cheat> CheatTable = new (new DictionaryTupleInitializer<string, Cheat>() {
+        RegisterCheat(CheatKey.ToggleCheats, (_) => {
+			cheatMode = !cheatMode;
+			UISFXPlayer.Play_SomeSound();
+
+			Debug.Log("CHEATS TOGGLED!");
+        }),
+    });
+	static readonly DictionaryBindingValidator<CheatKey, Cheat, string> cheatTableBindingValidator = new(CheatNameTable, CheatTable);
+
+    //CHEAT MAPPING END
+
+	//helpers
+	static bool TryGetEnumValueFromName<T>(string name, out T value) where T : Enum
+	{
+        var names = Enum.GetNames(typeof(T));
+        var runeNames = Enum.GetNames(typeof(Rune));
+
+		value = default;
+
+        for (int i = 0; i < names.Count(); ++i)
+        {
+            if (names[i].ToLower() == name)
+            {
+				value = (T)((object)i);
+				return true;
+            }
+        }
+
+		return false;
+    }
+
+    private void Awake()
+    {
+        inputBuffer = "";
+    }
+
+    static bool TryExecuteCheat(string name, string[] args)
+	{
+		var success = CheatTable.TryGetValue(name, out var cheat);
+		if (success && name == cheat.name)
+		{
+			if (cheat.predicate == null)
+			{
+                cheat.action.Invoke(args);
+				return success;
+            }
+
+			if (cheat.predicate.Invoke(cheat))
+				cheat.action.Invoke(args);
+        }
+
+		return success;
+    }
+
+	void Update()
+	{
+		if (UnityEngine.EventSystems.EventSystem.current != null &&
+			UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject != null)
+		{
+			return;
+		}
+
+		foreach (char c in Input.inputString)
+		{
+			if (c == '\b')
+			{
+				if (inputBuffer.Length > 0)
+					inputBuffer = inputBuffer.Substring(0, inputBuffer.Length - 1);
+			}
+			else if (c == '\n' || c == '\r')
+			{
+				CheckCheat(inputBuffer);
+				inputBuffer = "";
+			}
+			else
+			{
+				inputBuffer += c;
+				// Optional: limit buffer length
+				if (inputBuffer.Length > 64)
+					inputBuffer = inputBuffer.Substring(inputBuffer.Length - 64);
+			}
+		}
+
+		if (cheatMode)
+		{
+			if (Input.GetKeyDown(KeyCode.UpArrow))
+			{
+				selectedCommandIndex = Math.Clamp(selectedCommandIndex - 1, 0, commandHistory.Count - 1);
+                inputBuffer = (selectedCommandIndex) < commandHistory.Count ? commandHistory[selectedCommandIndex] : inputBuffer;
+			}
+            else if (Input.GetKeyDown(KeyCode.DownArrow))
+			{
+                selectedCommandIndex = Math.Clamp(selectedCommandIndex + 1, 0, commandHistory.Count - 1);
+                inputBuffer = (selectedCommandIndex) >= 0 ? commandHistory[selectedCommandIndex] : inputBuffer;
+            }
+        }
+	}
+
+	void CheckCheat(string enteredText)
+	{
+        enteredText = enteredText.ToLower().Trim();
+		var args = enteredText.Split(' ');
+
+		TryExecuteCheat(args[0], args);
+
+		commandHistory.Add(enteredText);
+		selectedCommandIndex = commandHistory.Count;
+    }
+
+    private void OnGUI()
+    {
+		if (!(cheatMode))
+			return;
+
+		int windowX = 64;
+		int windowY = 64;
+
+		int windowWidth = 512;
+		int windowHeight = 512;
+
+		int inputHeight = 32;
+
+		int itemWidth = windowWidth;
+		int itemHeight = 32;
+		int itemOffsetX = 4;
+		int itemOffsetY = itemHeight / 2;
+
+        GUI.Box(new Rect(windowX, windowY, windowWidth, windowHeight), "");
+        for (int i = 0; i < commandHistory.Count; i++)
+        {
+			var command = commandHistory[i];
+			GUI.Label(new Rect(windowX + itemOffsetX, windowY + itemOffsetY * i, itemWidth, itemHeight), command);
+		}
+		GUI.TextField(new Rect(windowX, windowHeight + inputHeight / 2, windowWidth, inputHeight), inputBuffer);
+    }
+}
+```
+
+## Auxiliary/Dependency classes
+### DictionaryTupleInitializer
+```C#
+using System;
+using System.Collections.Generic;
+
+public class DictionaryTupleInitializer<KeyType, ValueType> : Dictionary<KeyType, ValueType>
+{
+    public void Add(Tuple<KeyType, ValueType> values)
+    {
+        Add(values.Item1, values.Item2);
+    }
+};
+```
+
+### DictionaryBindingValidator
+```C#
+using System;
+using System.Collections.Generic;
+
+public struct DictionaryBindingValidator<KeyType, ValueType, BinderType>
+{
+    bool valid;
+
+    public DictionaryBindingValidator(IDictionary<KeyType, BinderType> bindingTable, IDictionary<BinderType, ValueType> valueTable)
+    {
+        valid = false;
+        foreach (var (key, binder) in bindingTable)
+        {
+            if (!valueTable.ContainsKey(binder))
+                throw new Exception($"Not all values have been bound between {bindingTable} and {valueTable}!");
+        }
+
+        valid = true;
+    }
+
+    public bool IsValid { get { return valid; } }
+}
+```
