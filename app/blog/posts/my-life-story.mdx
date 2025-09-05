@@ -1,11 +1,13 @@
 ---
-title: 'How and why I became a Software Engineer'
+title: 'Lee Jia Keat'
 publishedAt: '2025-03-25'
-updatedAt: '2025-05-02'
+updatedAt: '2025-09-05'
 summary: 'My life story.'
 ---
 
 Time for a story, or rather, incoherent ramblings about my life. This post won't be very structured, it's really just a messy reflection of the path that I have chosen.
+
+Parts of this might seem really messy, because its been sloppily edited a few times, and my writing style has changed significantly since the first time I wrote this post.
 
 ## Minecraft
 
@@ -22,22 +24,24 @@ It's hard to say whether the frustration from my lack-of-plugin-making-capabilit
 ## Early Education
 I may be Malaysian born and raised, but my entire educational background has been a Singaporean one. From primary school, all the way to graduating from university.
 
-## Information Technology
+## Choosing Information Technology
 After taking my GCE O'Levels, I really wanted to become a programmer, and I wanted to work with computers.
 
 I didn't really care about my exact career path at the time, I just wanted to learn to code, and learn to code I did.
 
-This fact basically threw any thoughts I had about joining a Junior College out of the window, and I ended up enrolling for a Diploma in Information Technology at Ngee Ann Polytechnic, Singapore.
+This fact basically threw any thoughts I had about joining a Junior College (which was the "preferred" route to the big-name universities) out of the window, and I ended up enrolling for a Diploma in Information Technology at Ngee Ann Polytechnic, Singapore.
 
-## Exposure to Programming
-In hindsight, the fact that my brother was a programmer likely had an influence as well.
+## Family Influence
+In hindsight, the fact that my brother was a programmer was a probably a strong influence in my decision to become a Software Developer.
 
-One time, he showed me a simple game he made in HTML5, a simple tile-based 2D JRPG prototype.
+One time, he showed me a simple web application he made in HTML, a simple 2D Tilemap editor inspired by a game called CrossCode.
 
-I was already studying for my IT diploma at this point, but it was likely this experience that eventually lead me to pursue game development seriously, first as an elective, then as a degree, and now finally, as a career path.
+He also showed me a bunch of other cool little toy projects, which I can't quite recall now.
 
-# Dawn: Ngee Ann Polytechnic
-About a week before I stepped into the Ngee Ann Polytechnic campus, I scanned the course brochure and discovered that I would be learning Python.
+At the time, I had no idea how games were made, I didn't even know it was possible for a game to be made by a single person, so it kinda blew me away that just anyone could make a game if they really wanted to.
+
+# Studying for a Diploma
+About a week before I stepped into the campus, I scanned the course brochure and discovered that I would be learning Python.
 
 Curiosity got the better of me, and I decided to try learning it on my own. After all, in the digital age, you can theoretically learn anything by looking it up online.
 
@@ -54,36 +58,57 @@ I was mostly just floating through the modules, until I was given the opportunit
 
 It was this choice, instead of going down the Big Data or Machine Learning route that eventually lead me to enroll at DigiPen after receiving my Diploma.
 
-All in all, I found myself doing quite well for myself, however..
+### First ever game
+The first game I made was made in Unity, a simple 2D side-scrolling shoot-em-up, kinda like metal slug I guess.
 
-## Arrogance
-They say that arrogance is the downfall of men, and fall I did. I fell, hard.
+The basic premise is a zombie apocalypse happened and you have to go pew pew all the zombies.
 
-After acing just about all my programming modules, I felt on top of the world, untouchable, like a god.
+As a two-person team, we just smushed a bunch of sprites together with a tilemap, a couple weapons, scuffed dialogue, and scattered a bunch of zombies around the map, and somehow it turned out pretty well.
 
-My naiveté lead me to believe that I could do anything, I could learn any technology, I thought I could build anything with my own two hands. 
+The funny thing is, we were supposed to make a game in GameMaker, but I so heavily disliked GameMaker at the time for some reason that I asked if I could try using Unity instead. Fortunately, our professor said yes.
 
-I guess this is what they call the Software Engineer superiority complex.
+We had zero experience, so our game was just a mishmash of tutorials and forum code. We even had this strange movement bug that accelerated the player when jumping against the corner of a tile, which we eventually just ended up calling a feature.
 
-Either way, inevitably, my complacency would destroy me.
+Sadly, all the files for this game have been lost, I don't even remember the name of the game, it was something along the lines of GuyShootStuff.
 
-## Waste
-My attitude lead me to squander my internship opportunities. Rather than making an informed decision, I simply selected the most appealing internship position.
+Also, as amateur first-time game developers, we had no idea how copyright worked, so all our game assets were ripped directly from the internet. Definitely can't publish that.
 
-Without considering whether I even had the qualifications, I opted for an internship at Samsung, for what I thought was an AI development role.
+### First mobile game
+The second game I made was a mobile game, also made in Unity, it was yet another side-scroller, but this time it's also a bullet hell.
 
-I got the interview, dressed myself up and went in thinking that the job was in the bag, how could they possibly refuse me?
+This game was made for a mobile-development module, the requirements of which was to make any mobile application, we ended up fulfilling the rubrics by jamming in some SQLite near the end to store local leaderboard scores.
 
-Alas, I had nothing concrete to show but empty promises.
+### First networked game
+It sounds impressive, but we heavily abused libraries to do the heavy lifting, zero networking knowledge required. We used firebase and stuff to do user authentication, store user data, player inventory, etc.
 
-I was rejected from the role, not big surprise.
+It's all a blur, because we honestly had no idea what we were doing.
 
-As a result of my bad decisions, I eventually ended up as a manual tester at CrimsonLogic. 
+We ended up making a weird fitness-gamification-hybrid application, where players can sort-of battle each other in a pushup battle, among other things.
 
-Funnily enough, I thought I was going to be a Software Developer, yet another consequence of my carefree attitude and complacency.
+We somehow got an A for this.
 
-## Misery
-The 6 months I spent as a manual tester were some of the most miserable months of my life. I hated my job, the people were nice, but the job was the epitome of mundane.
+### First game in C++
+Disaster. C++ was incredibly difficult for us at the time, we had no idea how memory worked, or even how the language really worked, so we kinda just stumbled our way in the darkness until we had a crappy top-down arena battler.
+
+We didn't have a game engine as far as I can remember, and I think we were dealing with a simple wrapper on top of DirectX.
+
+Honestly, it was a miracle that we survived, given that we didn't know anything about how camera matrices worked, so we just moved the whole world instead (close enough).
+
+Our final implementation was horrible, but hey, it worked, and we had a somewhat playable game.
+
+### Hindsight
+The brief stint I had with game development in Polytechnic pretty much solidified my desire to further study Game Development, which eventually lead me to enroll at DigiPen.
+
+## Internship
+By this point, I was doing pretty well for myself, I could effortlessly ace most programming modules, and was pretty comfortable with my grades overall.
+
+However, it was this complacency that lead me to believe I could handle anything that life threw my way. When it was time to find a company for my internship, I thoughtlessly went for an AI-based role at a Panasonic R&D branch.
+
+I had neither the qualifications, nor the experience to back myself up, and I went for the interview thinking I already had this job in the bag.
+
+Boy was I wrong, I was rejected almost immediately, and after a couple more bumps, rejections, bad assumptions and misunderstandings, I found myself as a manual tester at CrimsonLogic.
+
+The 6 months I spent as a manual tester were some of the most miserable months of my life. I hated my job, the people were nice, but the job was just straight-up boring.
 
 It was soul-draining, every day was a similar routine, testing, testing and more testing.
 
@@ -99,12 +124,10 @@ I didn't share my tool initially, as I was afraid of getting into trouble. After
 
 In hindsight, it probably doesn't matter.
 
-I eventually shared the tool with some close friends, fellow interns doing the same soul-sucking job, and I didn't get fired so all is well I guess.
+I eventually shared the tool with some close friends, fellow interns doing the same job, and I didn't get fired so all is well I guess.
 
-## Redemption?
+## Final Year Project
 After my internship, having mostly learned my lesson, I went on to develop a rhythm game for my final year project with a group of friends.
-
-I was obsessed with a game called osu!mania at this stage of my life, regularly grinding to hone my skills, and for that sweet sweet dopamine rush when I see my ranking go up.
 
 The game I developed was a bootleg clone of osu!mania made in Unity with a twist, the game doubles as a beatmap editor, where users can create maps by organically "playing" through a song.
 
@@ -114,8 +137,6 @@ To achieve this, copied the file format from mania and stripped it down to the b
 
 Things were going pretty well, we had a decent prototype that could play some heavily processed osu!mania maps.
 
-
-## Complacency (again)
 Unfortunately, I got complacent (again) during the holidays, practically not touching the project at all.
 
 As a result, we fell behind during the final stretch, we had a functional product, but it was severely lacking in polish.
@@ -124,24 +145,44 @@ We still got a pretty good grade though, it's just that the final product left m
 
 # DigiPen
 ## Junior Year
-DigiPen taught me a lot. I thought I understood Software Engineering before, boy was I wrong, I didn't know a thing.
+DigiPen was an eye-opening experience. I thought I understood Software Engineering before, but boy was I wrong. It turns out, I didn't know a thing about software, I just knew how to code.
 
-I already knew how to code, but my junior year at DigiPen made me actually understand why my code even works in the first place.
+I felt like I learned more about Software Engineering in the first trimester of my time at DigiPen than in the entire three years I spent studying for my Diploma in IT.
 
-Memory management, code compilation, assembly, bits, computer hardware architecture, etc.
+It was truly an enlightening experience, it was like I was reborn as a Software Engineer. I think a more accurate way to put it is like going through a job change, or class ascension.
 
-I felt enlightened.
+We started out learning C from scratch, how a program is actually laid out in memory, how the stack works, code compilation, linking, some basic assembler, computer architecture, etc. etc.
 
-## GAM
-A.K.A The Software Engineering Project
+Actually learning how sofware works, instead of just learning how to code.
 
-During my batch, DigiPen offered 6 modules of software engineering projects, split into one trimester each.
+## Software Engineering Project
+
+DigiPen offers this cool module called the "Software Engineering Project", which many of us call by its old module code 'GAM".
 
 Students are required to gather in teams, brainstorm project ideas, and implement them to completion, or at least, complete enough to satisfy the rubrics.
 
 These software engineering modules were my favourite part of the DigiPen curriculum, as they put all your technical (and communication/teamwork) skills right through the grinder.
 
 The freedom to build just about anything you want, is the most liberating form of educational assessment that I have ever experienced. Well, anything as long as it was part of a game/game engine/simulation.
+
+### GAM100
+I worked on an Asteroids clone using a C framework. The player controls a spaceship and shoots down asteroids to accumulate score. The twist here is that the asteroids split into smaller ones, and difficulty increases over time, eventually spawning bosses and hazards.
+
+This project put everything I learned about C to the test, memory management, linkage, compilation, etc.
+
+I had a ton of fun, and even got to do a little bit of pixel art.
+
+The game is called Asteroids.
+
+### GAM150
+We made a little stealth game, Captain Stealth's the name. A simple top-down stealth game, the goal is to escape from a prison. The player can hide in vents, trigger distractions to hide from guards and has to find keys to open doors.
+
+Find all the keys, open all the doors, and find the exit. The whole game takes place in one map, very short.
+
+This time, the game was written in C++, on top of a simple graphics wrapper. I made a simple little component framework (inspired by Unity of course) using virtual inheritance, and it just worked like a charm for our tiny game.
+
+### GAM200
+TO BE CONTINUED.
 
 ## Applied Mathematics
 This was the first time I actually enjoyed learning Maths. For the first time, I could directly see the applications, how I could use Linear Algebra and Calculus in my code to manipulate a virtual world.
@@ -166,7 +207,7 @@ I made a big decision to pivot into Web Development for my internship (Integrate
 I learned quite a bit about the "other side" of Software Engineering, JavaScript frameworks like Angular, backend frameworks like Spring, legacy tech (looking at you, Weblogic), CI/CD, DevOps, Unit Testing, etc, etc.
 It was overwhelming, yet exhilarating, I greatly enjoyed using my new-found knowledge as I went about my work, even if it wasn't the so-called best way to do things (my mentor always encouraged me to keep it simple, and in hindsight, he was always right).
 
-## Cancer
+## Getting Cancer
 Half-way through my internship, I was diagnosed with stage 4 colorectal cancer, sucks doesn't it. I suffered frequent bouts of dizziness and light-headedness, especially when exerting myself. I struggled to climb stairs, or walk quickly.
 
 I honestly thought I was just too fat, but it turns out that I suffered from serious anemia, and was leaking blood constantly from my colon. I ended up getting surgery and then going through chemotherapy (still am btw).
@@ -194,9 +235,6 @@ Although game development is my main passion, I still enjoy developing in other 
 I have a bad habit of starting unfinished projects, projects that typically start out strong, then fizzle out quickly, like gas from a soda.
 
 Either way, life marches on, and I will keep going, to be the best version of myself that I can ever be.
-
-# TLDR
-Never get complacent.
 
 ## Fun facts
 1. This post was initially written when I was in the hospital doing chemotherapy. I used GitHub codespaces, and while not the perfect writing experience, it was adequate to pen down my thoughts and see it be deployed.
