@@ -16,7 +16,7 @@ export const metadata = {
           <p className="mb-4">
             Click <a className="text-blue-500 font-bold" href="https://store.steampowered.com/app/3165320/Playing_God/">here</a> to check it out on Steam!
           </p>
-          <iframe src="https://store.steampowered.com/widget/3165320/" width="500" height="190"></iframe>
+          <iframe src="https://store.steampowered.com/widget/3165320/" width="100%" height="190"></iframe>
         </div>
         <section className="mt-4">
           <h1 className="text-2xl mb-4 font-bold">About</h1>
